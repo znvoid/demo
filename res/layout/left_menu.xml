@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   
+       android:id="@+id/left_drawer"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@drawable/menu_background"
+        android:divider="@android:color/transparent" 
+    android:orientation="vertical" >
+     <LinearLayout
+         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+         android:orientation="horizontal" 
+         >
+
+         <com.znvoid.demo.view.CircleImageView
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profile_image"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/tou"
+            app:border_color="#FFffffff"
+            app:border_width="1dp" 
+            android:clickable="true"/>
+     <TextView
+            android:layout_width="match_parent"
+            android:layout_height="28.0dip"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/profile_image"
+            android:gravity="center_vertical"
+            android:paddingLeft="15.0dip"
+            android:text="rad"
+            android:textColor="#ffffff"
+            android:textSize="14.0sp" />
+</LinearLayout>
+        <ListView
+            android:id="@+id/left_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+             />
+   
+
+</LinearLayout>
