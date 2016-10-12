@@ -24,15 +24,18 @@ public abstract class MyAdapt<T> extends BaseAdapter {
 //增加条目
 	public void add(T item) {
 		datalist.add(item);
+		notifyDataSetChanged();
 	}
 	//删除条目
 public void remove(int position) {
 	datalist.remove(position);
+	notifyDataSetChanged();
 }
 //设置数据
 public void setdata(List<T> list) {
 	datalist.clear();
 	datalist.addAll(list);
+	notifyDataSetChanged();
 }
 	@Override
 	public int getCount() {
