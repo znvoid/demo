@@ -2,6 +2,7 @@ package com.znvoid.demo.fragment;
 
 import com.znvoid.demo.R;
 import com.znvoid.demo.adapt.MyAdapt;
+import com.znvoid.demo.adapt.MyChatAapter;
 import com.znvoid.demo.daim.Chat;
 import com.znvoid.demo.view.CircleImageView;
 
@@ -27,8 +28,9 @@ public class ChatFragment extends Fragment implements OnClickListener {
 	private CircleImageView authorImage;
 	private ImageButton sendButton;
 	private EditText messageInputEdi;
-	private MyAdapt<Chat> adapt;
+	private MyChatAapter adapt;
 	private Context context;
+	private boolean flag_author=true;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -45,64 +47,48 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		sendButton =  (ImageButton) view.findViewById(R.id.sendButton);
 		authorImage = (CircleImageView) view.findViewById(R.id.circleImageView1);
 		listView = (ListView) view.findViewById(R.id.listchat);
-		adapt=new MyAdapt<Chat>(context,R.layout.chat_message) {
-
-			@Override
-			protected void initlistcell(int position, View listcellview, ViewGroup parent) {
-				// TODO Auto-generated method stub
-				
-				
-				Chat chat=getItem(position);
-				if (getString(R.string.author).equals(chat.getAuthor())) {
-					
-					TextView tvown=(TextView) listcellview.findViewById(R.id.author_own);
-					TextView tvownMessage=(TextView) listcellview.findViewById(R.id.message_own);
-					CircleImageView cimown=(CircleImageView) listcellview.findViewById(R.id.imageView_author_own);
-					
-					tvown.setText(chat.getAuthor());
-					tvownMessage.setText(chat.getMessage());
-					cimown.setImageBitmap(getRes(chat.getAuthor()));
-				
-				} else {
-					
-					TextView tvAuthor=(TextView) listcellview.findViewById(R.id.author);
-					TextView tvMessage=(TextView) listcellview.findViewById(R.id.message);
-					CircleImageView cimAuthor=(CircleImageView) listcellview.findViewById(R.id.imageView_author);
-					
-					tvAuthor.setText(chat.getAuthor());
-					tvMessage.setText(chat.getMessage());
-					cimAuthor.setImageBitmap(getRes(chat.getAuthor()));
-
-				}
+		adapt=new MyChatAapter(context) ;
 	
-			}
-			
-			public Bitmap getRes(String name) {
-				ApplicationInfo appInfo = context .getApplicationInfo();
-				int resID = getResources().getIdentifier(name, "drawable", appInfo.packageName);
-				return BitmapFactory.decodeResource(getResources(), resID);
-				}
-		};
 		listView.setAdapter(adapt);
 		sendButton.setOnClickListener(this);
 		authorImage.setOnClickListener(this);
 		
 		return view;
 	}
-
-	
+/*
+ * 通过文件名获取drawable目录下图片
+ */
+	public Bitmap getRes(String name) {
+		ApplicationInfo appInfo = context .getApplicationInfo();
+		int resID = getResources().getIdentifier(name, "drawable", appInfo.packageName);
+		return BitmapFactory.decodeResource(getResources(), resID);
+		}
 
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
 		case R.id.sendButton:// 发送按钮 事件
-			Chat item=new Chat("rad",messageInputEdi.getText().toString());
+			if ("".equals(messageInputEdi.getText().toString().trim())) {
+				break;
+			}
+			Chat item;
+			if (flag_author) {
+				item=new Chat(getString(R.string.author),messageInputEdi.getText().toString(),0);
+			}else {
+				item=new Chat(getString(R.string.other),messageInputEdi.getText().toString(),1);
+			}	
 			adapt.add(item);
 			messageInputEdi.setText("");
 			break;
 		case R.id.circleImageView1:// 头像点击事件
-
+			if (flag_author) {
+				authorImage.setImageBitmap(getRes(getString(R.string.other)));
+				flag_author=!flag_author;
+			}else {
+				authorImage.setImageBitmap(getRes(getString(R.string.author)));
+				flag_author=!flag_author;
+			}
 			break;
 		default:
 			break;
