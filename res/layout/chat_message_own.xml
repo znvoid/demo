@@ -25,7 +25,7 @@
             android:layout_below="@id/author"
             android:layout_marginRight="10dp"
             android:layout_toLeftOf="@id/imageView_author"
-            android:background="@drawable/chatto_bg_normal"
+            android:background="@drawable/chatto_bg"
             android:clickable="true"
             android:focusable="true"
             android:gravity="left|center"

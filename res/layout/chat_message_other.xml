@@ -44,7 +44,7 @@
             android:minHeight="50dp"
             android:textColor="#ff000000"
             android:textSize="15sp" 
-            android:background="@drawable/chatfrom_bg_normal"
+            android:background="@drawable/chatfrom_bg"
             />
 
    

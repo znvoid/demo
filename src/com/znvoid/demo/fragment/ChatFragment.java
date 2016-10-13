@@ -4,10 +4,14 @@ import com.znvoid.demo.R;
 import com.znvoid.demo.adapt.MyAdapt;
 import com.znvoid.demo.adapt.MyChatAapter;
 import com.znvoid.demo.daim.Chat;
+import com.znvoid.demo.sql.ChatSqlOpenHelp;
 import com.znvoid.demo.view.CircleImageView;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -48,14 +54,20 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		authorImage = (CircleImageView) view.findViewById(R.id.circleImageView1);
 		listView = (ListView) view.findViewById(R.id.listchat);
 		adapt=new MyChatAapter(context) ;
-	
+		ChatSqlOpenHelp sqlOpenHelp=new ChatSqlOpenHelp(context);
+		adapt.setdata(sqlOpenHelp.loadall());
 		listView.setAdapter(adapt);
+		
 		sendButton.setOnClickListener(this);
 		authorImage.setOnClickListener(this);
 		
 		return view;
 	}
-/*
+
+	
+	
+	
+	/*
  * 通过文件名获取drawable目录下图片
  */
 	public Bitmap getRes(String name) {
@@ -80,6 +92,8 @@ public class ChatFragment extends Fragment implements OnClickListener {
 			}	
 			adapt.add(item);
 			messageInputEdi.setText("");
+			ChatSqlOpenHelp sqlOpenHelp=new ChatSqlOpenHelp(context);
+			sqlOpenHelp.add(item);
 			break;
 		case R.id.circleImageView1:// 头像点击事件
 			if (flag_author) {

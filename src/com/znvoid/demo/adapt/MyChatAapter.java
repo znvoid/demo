@@ -1,24 +1,30 @@
 package com.znvoid.demo.adapt;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.znvoid.demo.R;
 import com.znvoid.demo.daim.Chat;
+import com.znvoid.demo.sql.ChatSqlOpenHelp;
 import com.znvoid.demo.view.CircleImageView;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public   class MyChatAapter extends BaseAdapter {
-
+public  class MyChatAapter extends BaseAdapter {
+	private int delposition=-1;
 	private Context context;
 	
 	private List<Chat> datalist = new ArrayList<Chat>();
@@ -35,6 +41,9 @@ public   class MyChatAapter extends BaseAdapter {
 	}
 	//删除条目
 public void remove(int position) {
+	System.out.println(position);
+	System.out.println("---------");
+	System.out.println(datalist.size());
 	datalist.remove(position);
 	notifyDataSetChanged();
 }
@@ -97,6 +106,20 @@ public void setdata(List<Chat> list) {
 		   convertView.setTag(holder);
 		  }
 		  holder.text.setText(chat.getMessage());
+		  holder.text.setId(position);
+		  holder.text.setOnLongClickListener(new OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View v) {
+				// TODO Auto-generated method stub
+				
+				delposition=v.getId();
+				
+				dialog();
+				
+				return true;
+			}
+		});
 		  holder.tvauthor.setText(chat.getAuthor());
 		  holder.circleImageView.setImageBitmap(getRes(chat.getAuthor()));
 		  
@@ -115,6 +138,39 @@ public void setdata(List<Chat> list) {
 				int resID =context. getResources().getIdentifier(name, "drawable", appInfo.packageName);
 				return BitmapFactory.decodeResource(context.getResources(), resID);
 				}
+		
+			protected void dialog() {
+				
+				  AlertDialog.Builder builder = new Builder(context);
+				  builder.setMessage("确认删除吗？");
+
+				  builder.setTitle("提示");
+
+				  builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+
+				   @Override
+				   public void onClick(DialogInterface dialog, int which) {
+					   
+					   
+						new ChatSqlOpenHelp(context).delete(getItem(delposition));
+					   remove(delposition);
+					   
+					   dialog.dismiss();
+
+				   }
+				  });
+
+				  builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+				   @Override
+				   public void onClick(DialogInterface dialog, int which) {
+					   delposition=-1;
+					   dialog.dismiss();
+				   }
+				  });
+
+				  builder.create().show();
+				 } 
 }
 		
 		
