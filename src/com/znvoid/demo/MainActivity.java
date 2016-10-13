@@ -1,5 +1,7 @@
 package com.znvoid.demo;
 
+
+
 import com.znvoid.demo.adapt.Menulistviewadapt;
 import com.znvoid.demo.daim.MLvData;
 import com.znvoid.demo.fragment.ChatFragment;
@@ -10,14 +12,21 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -26,11 +35,13 @@ public class MainActivity extends Activity implements OnClickListener {
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private CircleImageView cim;
-
+	private String mTitle;
+	private LinearLayout mDrawerView;
 	
 	private ChatFragment chatFragment = new ChatFragment();;
 	private WifilistFragment wifilistFragment = new WifilistFragment();
-	private  Fragment mContent = new Fragment() ;
+	
+	private  Fragment mContent = new Fragment() ;//µ±Ç°Fragment
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +52,28 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	private void initsetting() {
-
+		mTitle=(String) getTitle();
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerView=(LinearLayout) findViewById(R.id.left_drawer);
 		mDrawerList = (ListView) findViewById(R.id.left_listview);
+		mDrawerToggle=new ActionBarDrawerToggle(this, mDrawerLayout,R.drawable.ic_drawer , R.string.openDrawerContent, R.string.closeDrawerContent){
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				getActionBar().setTitle("²Ëµ¥");
+				invalidateOptionsMenu();
+				super.onDrawerOpened(drawerView);
+			}
+			@Override
+			public void onDrawerClosed(View drawerView) {
+				getActionBar().setTitle(mTitle);
+				invalidateOptionsMenu();
+				super.onDrawerClosed(drawerView);
+			}
+			
+		};
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);
 		cim = (CircleImageView) findViewById(R.id.profile_image);
 		// FragmentManager
 
@@ -103,29 +133,10 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 		}
 	}
+/*
+ * ÇÐ»»fragment£¬
+ */
 
-	public void changfragment(Fragment from, Fragment to) {
-		if (from == null) {
-			
-			getFragmentManager().beginTransaction().add(R.id.mian_frame, to).commit();
-			from = to;
-			return;
-		}
-		
-		if (from != to) {
-			
-			if (!to.isAdded()) {
-				getFragmentManager().beginTransaction().hide(from).add(R.id.mian_frame, to).commit();
-				
-			} else {
-				getFragmentManager().beginTransaction().hide(from).show(to).commit();
-			}
-			
-			
-			from = to;
-		}
-
-	}
 	public void switchContent(Fragment fragment) {
         if(mContent != fragment) {
         	
@@ -141,4 +152,52 @@ public class MainActivity extends Activity implements OnClickListener {
             
         }
     }
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu){
+	MenuInflater inflater = getMenuInflater();
+	        inflater.inflate(R.menu.main, menu);
+	return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		boolean isDrawerOpen=mDrawerLayout.isDrawerOpen(mDrawerView);
+		menu.findItem(R.id.action_websearch).setVisible(!isDrawerOpen);
+		
+		return super.onPrepareOptionsMenu(menu);
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if(mDrawerToggle.onOptionsItemSelected(item)){
+			return true;
+			}
+		switch (item.getItemId()) {
+		case R.id.action_websearch:
+			Intent intent=new Intent();
+			intent.setAction("android.intent.action.VIEW");
+			Uri uri= Uri.parse("http://www.baidu.com");
+			intent.setData(uri);
+			startActivity(intent);
+			
+			break;
+		
+		default:
+			break;
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onPostCreate(savedInstanceState);
+		mDrawerToggle.syncState();
+	}
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		// TODO Auto-generated method stub
+		super.onConfigurationChanged(newConfig);
+		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
 }

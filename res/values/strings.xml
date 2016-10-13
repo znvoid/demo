@@ -6,5 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="author">rad</string>
     <string name="other">cat</string>
+    <string name="openDrawerContent">Drawer open</string>
+    <string name="closeDrawerContent">Drawer close</string>
 
 </resources>
