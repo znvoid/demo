@@ -41,9 +41,7 @@ public  class MyChatAapter extends BaseAdapter {
 	}
 	//É¾³ýÌõÄ¿
 public void remove(int position) {
-	System.out.println(position);
-	System.out.println("---------");
-	System.out.println(datalist.size());
+	
 	datalist.remove(position);
 	notifyDataSetChanged();
 }

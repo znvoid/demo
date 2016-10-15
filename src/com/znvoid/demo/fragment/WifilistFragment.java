@@ -57,7 +57,7 @@ public class WifilistFragment extends Fragment {
 			
 			@Override
 			public void onClick(View v) {
-				System.out.println("refresh");
+				
 				refreshanimation();
 				adapt.setmWifiList(refreshdata());
 				adapt.notifyDataSetChanged();
@@ -67,7 +67,7 @@ public class WifilistFragment extends Fragment {
 		return view;
 	}
 	public void refreshanimation(){
-		animation=AnimationUtils.loadAnimation(context, R.drawable.wifirefreshrotate);  
+		animation=AnimationUtils.loadAnimation(context, R.anim.wifirefreshrotate);  
 		LinearInterpolator lin = new LinearInterpolator();
 		animation.setInterpolator(lin); 
 		mImageView_refresh.startAnimation(animation);

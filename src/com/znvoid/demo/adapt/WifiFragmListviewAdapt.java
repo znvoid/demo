@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class WifiFragmListviewAdapt extends BaseAdapter {
@@ -70,8 +71,9 @@ public class WifiFragmListviewAdapt extends BaseAdapter {
 		View  view=inflater.inflate(R.layout.wifilistview,null);
 		TextView textView1=(TextView) view.findViewById(R.id.wifi_tv1);
 		TextView textView2=(TextView) view.findViewById(R.id.wifi_tv2);
+		ImageView imageView=(ImageView) view.findViewById(R.id.imageView_wifi);
 		
-		
+		imageView.setImageLevel(mWifiList.get(position).level+100);
 		textView1.setText(mWifiList.get(position).SSID);
 		textView2.setText(mWifiList.get(position).BSSID);
 		return view;
