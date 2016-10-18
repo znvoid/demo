@@ -8,10 +8,39 @@ public class Chat {
     private String author;
     private String message;
     private int direction;
-    
-    
-
    
+    private String head;
+    private String ip;
+   
+
+	public String getHead() {
+		return head;
+	}
+
+	public void setHead(String head) {
+		this.head = head;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Chat(String author, String message, int direction, String head, String ip) {
+		super();
+		this.author = author;
+		this.message = message;
+		this.direction = direction;
+		this.head = head;
+		this.ip = ip;
+	}
 
 	public Chat(String author, String message, int direction) {
 		super();

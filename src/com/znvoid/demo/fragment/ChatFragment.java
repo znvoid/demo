@@ -1,5 +1,10 @@
 package com.znvoid.demo.fragment;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import com.znvoid.demo.R;
 import com.znvoid.demo.adapt.MyAdapt;
 import com.znvoid.demo.adapt.MyChatAapter;
@@ -17,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,7 +43,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 	private MyChatAapter adapt;
 	private Context context;
 	private boolean flag_author=true;
-
+	private ServerSocket serverSocket = null; 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -64,7 +70,17 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		return view;
 	}
 
-	
+	@Override
+	public void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	
 	/*
@@ -108,5 +124,6 @@ public class ChatFragment extends Fragment implements OnClickListener {
 			break;
 		}
 	}
+	
 	
 }

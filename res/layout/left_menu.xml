@@ -20,11 +20,12 @@
             android:layout_height="60dp"
             android:layout_gravity="center_horizontal"
             android:clickable="true"
-            android:src="@drawable/tou"
+            android:src="@drawable/head_2"
             app:border_color="#FFffffff"
             app:border_width="1dp" />
 
         <TextView
+            android:id="@+id/profile_tv"
             android:layout_width="match_parent"
             android:layout_height="28.0dip"
             android:layout_centerVertical="true"

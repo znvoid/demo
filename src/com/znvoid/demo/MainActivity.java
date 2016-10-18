@@ -2,16 +2,20 @@ package com.znvoid.demo;
 
 import com.znvoid.demo.adapt.Menulistviewadapt;
 import com.znvoid.demo.daim.MLvData;
+import com.znvoid.demo.fragment.AccountFragment;
 import com.znvoid.demo.fragment.ChatFragment;
 import com.znvoid.demo.fragment.NetFragment;
 import com.znvoid.demo.fragment.WifilistFragment;
+import com.znvoid.demo.util.Utils;
 import com.znvoid.demo.view.CircleImageView;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener {
@@ -34,12 +39,15 @@ public class MainActivity extends Activity implements OnClickListener {
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private CircleImageView cim;
+	private TextView textView;
 	private String mTitle;
 	private LinearLayout mDrawerView;
-
+	private SharedPreferences sp;
+	private Context context;
 	private ChatFragment chatFragment = new ChatFragment();;
 	private WifilistFragment wifilistFragment = new WifilistFragment();
 	private NetFragment netFragment=new NetFragment();
+	private AccountFragment accountFragment=new AccountFragment();
 	
 	private Fragment mContent = new Fragment();// 当前Fragment
 
@@ -52,6 +60,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	private void initsetting() {
+		sp=getSharedPreferences("configs", MODE_PRIVATE);
+		context=this;
 		mTitle = (String) getTitle();
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerView = (LinearLayout) findViewById(R.id.left_drawer);
@@ -62,6 +72,8 @@ public class MainActivity extends Activity implements OnClickListener {
 			public void onDrawerOpened(View drawerView) {
 				getActionBar().setTitle("菜单");
 				invalidateOptionsMenu();
+			cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
+				textView.setText(sp.getString("author", "rad"));
 				super.onDrawerOpened(drawerView);
 			}
 
@@ -77,6 +89,9 @@ public class MainActivity extends Activity implements OnClickListener {
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
 		cim = (CircleImageView) findViewById(R.id.profile_image);
+		textView=(TextView) findViewById(R.id.profile_tv);
+		cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
+		textView.setText(sp.getString("author", "rad"));
 		// FragmentManager
 
 		// chatfragment初始化
@@ -95,7 +110,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				MLvData data = (MLvData) mDrawerList.getItemAtPosition(position);
 				switch (position) {
 				case 0:
-
+					switchContent(accountFragment);
 					break;
 
 				case 1:
