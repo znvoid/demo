@@ -1,49 +1,117 @@
 package com.znvoid.demo.fragment;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.util.ArrayList;
 
 import com.znvoid.demo.R;
-import com.znvoid.demo.adapt.MyAdapt;
+import com.znvoid.demo.WifiUtil;
+
 import com.znvoid.demo.adapt.MyChatAapter;
 import com.znvoid.demo.daim.Chat;
+import com.znvoid.demo.net.ClientScanResultSO;
+import com.znvoid.demo.net.MacGetFromArp;
+import com.znvoid.demo.net.TCPClientThread;
+import com.znvoid.demo.net.TCPServerThread;
 import com.znvoid.demo.sql.ChatSqlOpenHelp;
-import com.znvoid.demo.view.CircleImageView;
+import com.znvoid.demo.util.TCPData;
 
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
+
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
+
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
+
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ChatFragment extends Fragment implements OnClickListener {
+
 	private ListView listView;
-	private CircleImageView authorImage;
+	private Spinner spinner;
 	private ImageButton sendButton;
 	private EditText messageInputEdi;
 	private MyChatAapter adapt;
+	private ArrayAdapter<String> spinerAdapter;// spinner的adapt
 	private Context context;
-	private boolean flag_author=true;
-	private ServerSocket serverSocket = null; 
+	private boolean flag_author = true;
+	private MacGetFromArp arp = new MacGetFromArp();
+	private String myIP;
+	private String clientIP = "我";
+	private ChatSqlOpenHelp sqlOpenHelp;
+	private SharedPreferences sharedPreferences;
+	private TCPServerThread tcpServerThread;
+	private TCPClientThread tcpClientThread;
+	Handler mhandler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case TCPServerThread.SERVER_RECEIVED_MESSAGE:
+
+				Chat chat = TCPData.getChat((String) msg.obj);
+				if (chat != null) {
+					adapt.add(chat);
+					sqlOpenHelp.add(chat);
+				}
+
+				break;
+			case TCPServerThread.SERVER_SEND_FAIL:
+
+				break;
+			case TCPServerThread.SERVER_SEND_SUCCEED:
+
+				break;
+			case TCPClientThread.CLIENT_RECEIVED_MESSAGE:
+				Chat chat_cr = TCPData.getChat((String) msg.obj);
+				if (chat_cr != null) {
+					adapt.add(chat_cr);
+					sqlOpenHelp.add(chat_cr);
+				}
+				break;
+			case TCPClientThread.CLIENT_SEND_FAIL:
+				Log.e("Light", "22222发送失败");
+				Toast.makeText(context, "发送失败！", Toast.LENGTH_SHORT).show();
+				break;
+			case TCPClientThread.CLIENT_SEND_SUCCSSED:
+
+				Chat chat1 = TCPData.getChat((String) msg.obj);
+
+				if (chat1 != null) {
+					chat1.setDirection(0);
+					chat1.setIp("我");
+					adapt.add(chat1);
+					sqlOpenHelp.add(chat1);
+				}
+
+				break;
+			case TCPClientThread.CLIENT_CONN_FIAL:
+				Toast.makeText(context, "连接服务器失败！", Toast.LENGTH_SHORT).show();
+				break;
+			case TCPClientThread.CLIENT_CONN_SUCC:
+				Toast.makeText(context, "连接成功！", Toast.LENGTH_SHORT).show();
+				break;
+			default:
+				break;
+			}
+		};
+
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -53,77 +121,128 @@ public class ChatFragment extends Fragment implements OnClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
-		context=getActivity();
+		context = getActivity();
+
 		View view = inflater.inflate(R.layout.chatframgment, null);
+
+		// 获取本机ip
+		WifiUtil wifiutil = new WifiUtil(context);
+		myIP = wifiutil.getIP();
+
+		// 创建tcpsServer
+		tcpServerThread = new TCPServerThread(mhandler);
+		tcpServerThread.start();
+
+		//
+		sharedPreferences = context.getSharedPreferences("configs", context.MODE_PRIVATE);
+		sqlOpenHelp = new ChatSqlOpenHelp(context);
 		messageInputEdi = (EditText) view.findViewById(R.id.messageInput);
-		sendButton =  (ImageButton) view.findViewById(R.id.sendButton);
-		authorImage = (CircleImageView) view.findViewById(R.id.circleImageView1);
+		sendButton = (ImageButton) view.findViewById(R.id.sendButton);
+		spinner = (Spinner) view.findViewById(R.id.spinner1);
+		String[] mItems = getSpinnerData();
+		spinerAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, mItems);
+		spinerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(spinerAdapter);
+		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+
+				if (clientIP != spinerAdapter.getItem(pos)) {
+					clientIP = spinerAdapter.getItem(pos);
+
+				}
+
+				System.out.println(clientIP);
+
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// Another interface callback
+			}
+		});
 		listView = (ListView) view.findViewById(R.id.listchat);
-		adapt=new MyChatAapter(context) ;
-		ChatSqlOpenHelp sqlOpenHelp=new ChatSqlOpenHelp(context);
+		adapt = new MyChatAapter(context);
+		ChatSqlOpenHelp sqlOpenHelp = new ChatSqlOpenHelp(context);
 		adapt.setdata(sqlOpenHelp.loadall());
 		listView.setAdapter(adapt);
-		
+
 		sendButton.setOnClickListener(this);
-		authorImage.setOnClickListener(this);
-		
+
 		return view;
 	}
 
-	@Override
-	public void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
-		try {
-			serverSocket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public String[] getSpinnerData() {
+
+		ArrayList<ClientScanResultSO> al = arp.getClientList(true, 1000);
+		String[] reStrings = new String[al.size() + 2];
+		for (int i = reStrings.length; i > reStrings.length - al.size(); i--) {
+			reStrings[i - 1] = al.get(reStrings.length - i).getIp();
 		}
+		reStrings[0] = "机器人";
+		reStrings[1] = "我";
+
+		return reStrings;
 	}
-	
-	
+
 	/*
- * 通过文件名获取drawable目录下图片
- */
+	 * 通过文件名获取drawable目录下图片
+	 */
 	public Bitmap getRes(String name) {
-		ApplicationInfo appInfo = context .getApplicationInfo();
+		ApplicationInfo appInfo = context.getApplicationInfo();
 		int resID = getResources().getIdentifier(name, "drawable", appInfo.packageName);
 		return BitmapFactory.decodeResource(getResources(), resID);
-		}
+	}
 
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
 		case R.id.sendButton:// 发送按钮 事件
+
 			if ("".equals(messageInputEdi.getText().toString().trim())) {
 				break;
 			}
 			Chat item;
-			if (flag_author) {
-				item=new Chat(getString(R.string.author),messageInputEdi.getText().toString(),0);
-			}else {
-				item=new Chat(getString(R.string.other),messageInputEdi.getText().toString(),1);
-			}	
-			adapt.add(item);
-			messageInputEdi.setText("");
-			ChatSqlOpenHelp sqlOpenHelp=new ChatSqlOpenHelp(context);
-			sqlOpenHelp.add(item);
-			break;
-		case R.id.circleImageView1:// 头像点击事件
-			if (flag_author) {
-				authorImage.setImageBitmap(getRes(getString(R.string.other)));
-				flag_author=!flag_author;
-			}else {
-				authorImage.setImageBitmap(getRes(getString(R.string.author)));
-				flag_author=!flag_author;
+			if (clientIP.matches(".+\\..+\\..+\\..+")) {
+				item = new Chat(sharedPreferences.getString("author", "??"),
+						messageInputEdi.getText().toString().trim(), 0, sharedPreferences.getString("head", "head_1"),
+						myIP);
+				tcpClientThread = new TCPClientThread(mhandler, clientIP, TCPData.getMsg(item));
+				tcpClientThread.start();
+
+			} else if (clientIP.equals("我")) {
+
+				item = new Chat(sharedPreferences.getString("author", "??"),
+						messageInputEdi.getText().toString().trim(), 0, sharedPreferences.getString("head", "head_1"),
+						clientIP);
+				adapt.add(item);
+
+				sqlOpenHelp.add(item);
+			} else {
+				item = new Chat(sharedPreferences.getString("other", "??"), messageInputEdi.getText().toString().trim(),
+						1, sharedPreferences.getString("head_other", "head_1"), clientIP);
+				adapt.add(item);
+
+				sqlOpenHelp.add(item);
 			}
+
+			messageInputEdi.setText("");
+
+			break;
+		case 1:// 头像点击事件
+
 			break;
 		default:
 			break;
 		}
 	}
-	
-	
+
+	@Override
+	public void onResume() {
+
+		// spinerAdapter.clear();
+		// spinerAdapter.addAll(getSpinnerData());
+		super.onResume();
+	}
 }

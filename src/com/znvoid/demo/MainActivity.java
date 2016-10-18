@@ -44,7 +44,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	private LinearLayout mDrawerView;
 	private SharedPreferences sp;
 	private Context context;
-	private ChatFragment chatFragment = new ChatFragment();;
+	private ChatFragment chatFragment = new ChatFragment();
 	private WifilistFragment wifilistFragment = new WifilistFragment();
 	private NetFragment netFragment=new NetFragment();
 	private AccountFragment accountFragment=new AccountFragment();
@@ -62,6 +62,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	private void initsetting() {
 		sp=getSharedPreferences("configs", MODE_PRIVATE);
 		context=this;
+		
 		mTitle = (String) getTitle();
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerView = (LinearLayout) findViewById(R.id.left_drawer);

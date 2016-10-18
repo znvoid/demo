@@ -22,7 +22,7 @@ public class ChatSqlOpenHelp extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
-		db.execSQL("CREATE TABLE IF NOT EXISTS chatdata (chatid integer primary key autoincrement, name varchar(20), message TEXT,direction INT)");   
+		db.execSQL("CREATE TABLE IF NOT EXISTS chatdata (chatid integer primary key autoincrement, name varchar(20), message TEXT,direction INT,head varchar(20),ip TEXT)");   
 	}
 
 	@Override
@@ -39,6 +39,9 @@ public class ChatSqlOpenHelp extends SQLiteOpenHelper {
             cont.put("name", chat.getAuthor());
             cont.put("message", chat.getMessage());
             cont.put("direction", chat.getDirection());
+            cont.put("head", chat.getHead());
+            cont.put("ip", chat.getIp());
+            
             db.insert("chatdata", null,cont );
             db.close();}
     }
@@ -48,7 +51,7 @@ public class ChatSqlOpenHelp extends SQLiteOpenHelper {
         if(db.isOpen()){
             //db.execSQL("delete from person where name=?", new Object[]{name});
 
-            db.delete("chatdata", "name=? and message=? and direction=?", new String[]{chat.getAuthor(),chat.getMessage(),String.valueOf(chat.getDirection())});
+            db.delete("chatdata", "name=? and message=? and direction=?and head=? and ip=?", new String[]{chat.getAuthor(),chat.getMessage(),String.valueOf(chat.getDirection()),chat.getHead(),chat.getIp()});
 
             db.close();
         }
@@ -63,8 +66,9 @@ public class ChatSqlOpenHelp extends SQLiteOpenHelper {
 			   String name = cursor.getString(1);//获取第二列的值
 			   String message = cursor.getString(2);//获取第三列的值
 			   int direction = cursor.getInt(3);//获取第四列的值
-			   
-			   listchat.add(new Chat(name, message, direction));
+			   String head = cursor.getString(4);//获取第五列的值
+			   String ip = cursor.getString(5);//获取第六列的值
+			   listchat.add(new Chat(name, message, direction,head,ip));
 			   
 			   
 			}

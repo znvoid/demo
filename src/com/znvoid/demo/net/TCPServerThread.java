@@ -35,9 +35,9 @@ public class TCPServerThread extends Thread {
 	private Map<String, Socket> socketMap;
 
 	Handler mHandler;
-	private final int SERVER_RECEIVED_MESSAGE = 0x1001;
-	private final int SERVER_SEND_FAIL = 0x1002;
-	private final int SERVER_SEND_SUCCEED = 0x1003;
+	public static final int SERVER_RECEIVED_MESSAGE = 0x1001;
+	public static final int SERVER_SEND_FAIL = 0x1002;
+	public static final int SERVER_SEND_SUCCEED = 0x1003;
 
 	public boolean isRun = true;
 
@@ -130,7 +130,7 @@ public class TCPServerThread extends Thread {
 						
 						Message msg = new Message();
 						msg.what = SERVER_RECEIVED_MESSAGE;
-						msg.obj = new String(buffer, 0, temp);
+						msg.obj = new String(buffer, 0, temp,"gbk");
 						mHandler.sendMessage(msg);
 					}
 					

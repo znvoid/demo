@@ -118,8 +118,8 @@ public void setdata(List<Chat> list) {
 				return true;
 			}
 		});
-		  holder.tvauthor.setText(chat.getAuthor());
-		  holder.circleImageView.setImageBitmap(getRes(chat.getAuthor()));
+		  holder.tvauthor.setText(chat.getAuthor()+"("+chat.getIp()+")");
+		  holder.circleImageView.setImageBitmap(getRes(chat.getHead()));
 		  
 		  
 		  return convertView;
