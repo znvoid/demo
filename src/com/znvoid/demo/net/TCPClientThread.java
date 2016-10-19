@@ -55,7 +55,7 @@ public class TCPClientThread extends Thread {
         this.handler=handler;
         this.ip=ip;
         this.mMsg=mMsg;
-        
+        Log.i(TAG, "创建线程socket");
     }
  
     /**

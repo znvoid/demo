@@ -103,10 +103,10 @@ public class ChatFragment extends Fragment implements OnClickListener {
 
 				break;
 			case TCPClientThread.CLIENT_CONN_FIAL:
-				Toast.makeText(context, "连接服务器失败！", Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, "连接服务器失败！发送失败", Toast.LENGTH_SHORT).show();
 				break;
 			case TCPClientThread.CLIENT_CONN_SUCC:
-				Toast.makeText(context, "连接成功！", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(context, "连接成功！", Toast.LENGTH_SHORT).show();
 				break;
 			case SearchThread.SEARCH_FINSH:
 				if (progress != null) {
@@ -177,7 +177,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 					progress.show();
 
 				}
-				System.out.println(clientIP);
+				
 
 			}
 
@@ -208,7 +208,8 @@ public class ChatFragment extends Fragment implements OnClickListener {
 				break;
 			}
 			Chat item;
-			if (clientIP.matches(".+\\..+\\..+\\..+")) {
+			
+			if (clientIP.matches(".+\\..+\\..+\\..+")) {	
 				item = new Chat(sharedPreferences.getString("author", myIP),
 						messageInputEdi.getText().toString().trim(), 0, sharedPreferences.getString("head", "head_1"),
 						myIP,Utils.getSysTime());

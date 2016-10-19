@@ -56,6 +56,9 @@ public class NetFragment extends Fragment {
 				flagrefreshdate=!flagrefreshdate;
 				List<ClientScanResultSO> temp=(List<ClientScanResultSO>) msg.obj;
 				if (temp.size()==0) {
+					adapt.setdata(Utils.getClientList());
+					mImageView_refresh.clearAnimation();
+					
 					break;
 				}
 				adapt.setdata(Utils.checkClient((temp)));

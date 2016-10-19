@@ -132,6 +132,7 @@ public class SearchThread extends Thread {
 				 new connThread(latch, datasIP.get(i)).start();
 			}
 			latch.await();
+			Log.e("Light1", "≤È’“ÕÍ≥…");
 			Message msg = mHandler.obtainMessage();
             msg.what = SEARCH_FINSH;
             msg.obj=ipStrings;
