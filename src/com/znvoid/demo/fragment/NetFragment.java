@@ -2,13 +2,16 @@ package com.znvoid.demo.fragment;
 
 
 
+import java.util.List;
+
 import com.znvoid.demo.R;
 import com.znvoid.demo.WifiUtil;
 import com.znvoid.demo.adapt.MyAdapt;
-
-import com.znvoid.demo.net.ClientScanResultSO;
-import com.znvoid.demo.net.MacGetFromArp;
+import com.znvoid.demo.daim.ClientScanResultSO;
 import com.znvoid.demo.net.Ping;
+import com.znvoid.demo.net.SearchThread;
+import com.znvoid.demo.util.Utils;
+import com.znvoid.demo.view.CircleImageView;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -42,24 +45,26 @@ public class NetFragment extends Fragment {
 	private Handler handle = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
-			case MSG_OVER:
-
-				break;
+			
 			case MSG_STOP:
-
+				mImageView_refresh.clearAnimation();
 				break;
 			case MSG_TIMEOUT:
-
+				new SearchThread(handle).start();
 				break;
-
+			case SearchThread.SEARCH_TEST:
+				flagrefreshdate=!flagrefreshdate;
+				List<ClientScanResultSO> temp=(List<ClientScanResultSO>) msg.obj;
+				if (temp.size()==0) {
+					break;
+				}
+				adapt.setdata(Utils.checkClient((temp)));
+				mImageView_refresh.clearAnimation();
+				break;
 			default:
 				break;
 			}
-			
-			flagrefreshdate=!flagrefreshdate;
-			MacGetFromArp arp = new MacGetFromArp();
-			adapt.setdata(arp.getClientList(true, 1000));
-			mImageView_refresh.clearAnimation();
+
 
 		};
 
@@ -88,11 +93,17 @@ public class NetFragment extends Fragment {
 			@Override
 			protected void initlistcell(int position, View listcellview, ViewGroup parent) {
 				// TODO Auto-generated method stub
+				ClientScanResultSO client=getItem(position);
 				TextView tv_ip = (TextView) listcellview.findViewById(R.id.tv_ip);
 				TextView tv_mac = (TextView) listcellview.findViewById(R.id.tv_mac);
-				tv_ip.setText(getItem(position).getIp());
-				tv_mac.setText(getItem(position).getHwAddress());
-
+				TextView tv_author = (TextView) listcellview.findViewById(R.id.tv_clientname);
+				CircleImageView cim_client=(CircleImageView) listcellview.findViewById(R.id.cim_clinthead);
+				
+				
+				tv_ip.setText(client.getIp());
+				tv_mac.setText(client.getHwAddress());
+				tv_author.setText(client.getHostname());
+				cim_client.setImageBitmap(Utils.getRes(context, client.getHeadName()));
 			}
 		};
 		refreshanimation();
@@ -112,7 +123,7 @@ public class NetFragment extends Fragment {
 					refreshdata();
 				}
 				flagrefreshdate=!flagrefreshdate;
-				// adapt.setdata(refreshdata());
+				
 
 			}
 		});
@@ -136,17 +147,18 @@ public class NetFragment extends Fragment {
 				Ping ping = new Ping();
 				ping.pingAll(wifiUtil.getIP());
 
-				handle.sendEmptyMessage(MSG_OVER);
+				
 			};
 		}.start();
 		new Thread() {
 			public void run() {
 
 				try {
-					Thread.sleep(5000);
+					
+					Thread.sleep(3000);
 					
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 
@@ -154,8 +166,7 @@ public class NetFragment extends Fragment {
 				
 			};
 		}.start();
-		// MacGetFromArp arp=new MacGetFromArp();
-		// return arp.getClientList(true, 1000);
+		
 
 	}
 

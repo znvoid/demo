@@ -11,8 +11,6 @@ import com.znvoid.demo.view.CircleImageView;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +19,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,7 +46,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private WifilistFragment wifilistFragment = new WifilistFragment();
 	private NetFragment netFragment=new NetFragment();
 	private AccountFragment accountFragment=new AccountFragment();
-	
+	private String mIP;
+	private WifiUtil wifiUtil;
 	private Fragment mContent = new Fragment();// 当前Fragment
 
 	@Override
@@ -62,7 +61,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private void initsetting() {
 		sp=getSharedPreferences("configs", MODE_PRIVATE);
 		context=this;
-		
+		wifiUtil=new WifiUtil(context);
+		mIP=wifiUtil.getIP();
 		mTitle = (String) getTitle();
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerView = (LinearLayout) findViewById(R.id.left_drawer);
@@ -74,7 +74,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				getActionBar().setTitle("菜单");
 				invalidateOptionsMenu();
 			cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
-				textView.setText(sp.getString("author", "rad"));
+				textView.setText(sp.getString("author", mIP));
 				super.onDrawerOpened(drawerView);
 			}
 
@@ -92,7 +92,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		cim = (CircleImageView) findViewById(R.id.profile_image);
 		textView=(TextView) findViewById(R.id.profile_tv);
 		cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
-		textView.setText(sp.getString("author", "rad"));
+		textView.setText(sp.getString("author", mIP));
 		// FragmentManager
 
 		// chatfragment初始化

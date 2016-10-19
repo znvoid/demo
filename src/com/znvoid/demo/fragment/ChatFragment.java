@@ -2,25 +2,27 @@ package com.znvoid.demo.fragment;
 
 import java.util.ArrayList;
 
+import java.util.List;
+
 import com.znvoid.demo.R;
 import com.znvoid.demo.WifiUtil;
 
 import com.znvoid.demo.adapt.MyChatAapter;
 import com.znvoid.demo.daim.Chat;
-import com.znvoid.demo.net.ClientScanResultSO;
-import com.znvoid.demo.net.MacGetFromArp;
+
+
+import com.znvoid.demo.net.SearchThread;
 import com.znvoid.demo.net.TCPClientThread;
 import com.znvoid.demo.net.TCPServerThread;
 import com.znvoid.demo.sql.ChatSqlOpenHelp;
 import com.znvoid.demo.util.TCPData;
+import com.znvoid.demo.util.Utils;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,12 +35,12 @@ import android.widget.AdapterView;
 
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
+
 import android.widget.Toast;
 
 public class ChatFragment extends Fragment implements OnClickListener {
@@ -49,11 +51,12 @@ public class ChatFragment extends Fragment implements OnClickListener {
 	private EditText messageInputEdi;
 	private MyChatAapter adapt;
 	private ArrayAdapter<String> spinerAdapter;// spinner的adapt
+	private List<String> datas;
 	private Context context;
-	private boolean flag_author = true;
-	private MacGetFromArp arp = new MacGetFromArp();
+	private ProgressDialog progress;
+	
 	private String myIP;
-	private String clientIP = "我";
+	private String clientIP = "机器人";
 	private ChatSqlOpenHelp sqlOpenHelp;
 	private SharedPreferences sharedPreferences;
 	private TCPServerThread tcpServerThread;
@@ -105,7 +108,18 @@ public class ChatFragment extends Fragment implements OnClickListener {
 			case TCPClientThread.CLIENT_CONN_SUCC:
 				Toast.makeText(context, "连接成功！", Toast.LENGTH_SHORT).show();
 				break;
-			default:
+			case SearchThread.SEARCH_FINSH:
+				if (progress != null) {
+					progress.dismiss();
+				}
+				datas.clear();
+				datas.add("机器人");
+				datas.add("我");
+				datas.addAll((List<String>) msg.obj);
+				datas.add("点击刷新");
+				spinerAdapter.notifyDataSetChanged();
+				spinner.setSelection(0);
+
 				break;
 			}
 		};
@@ -130,17 +144,23 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		myIP = wifiutil.getIP();
 
 		// 创建tcpsServer
-		tcpServerThread = new TCPServerThread(mhandler);
+		tcpServerThread = new TCPServerThread(context,mhandler);
 		tcpServerThread.start();
-
+		if (null == progress) {
+			progress = new ProgressDialog(context);
+		}
 		//
 		sharedPreferences = context.getSharedPreferences("configs", context.MODE_PRIVATE);
 		sqlOpenHelp = new ChatSqlOpenHelp(context);
 		messageInputEdi = (EditText) view.findViewById(R.id.messageInput);
 		sendButton = (ImageButton) view.findViewById(R.id.sendButton);
 		spinner = (Spinner) view.findViewById(R.id.spinner1);
-		String[] mItems = getSpinnerData();
-		spinerAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, mItems);
+		datas = new ArrayList<String>();
+
+		datas.add("机器人");
+		datas.add("我");
+		datas.add("刷新");
+		spinerAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, datas);
 		spinerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(spinerAdapter);
 		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -151,14 +171,19 @@ public class ChatFragment extends Fragment implements OnClickListener {
 					clientIP = spinerAdapter.getItem(pos);
 
 				}
+				if (pos == spinerAdapter.getCount() - 1) {
+					new SearchThread(mhandler).start();
+					progress.setTitle("正在刷新中...");
+					progress.show();
 
+				}
 				System.out.println(clientIP);
 
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
-				// Another interface callback
+
 			}
 		});
 		listView = (ListView) view.findViewById(R.id.listchat);
@@ -172,28 +197,6 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		return view;
 	}
 
-	public String[] getSpinnerData() {
-
-		ArrayList<ClientScanResultSO> al = arp.getClientList(true, 1000);
-		String[] reStrings = new String[al.size() + 2];
-		for (int i = reStrings.length; i > reStrings.length - al.size(); i--) {
-			reStrings[i - 1] = al.get(reStrings.length - i).getIp();
-		}
-		reStrings[0] = "机器人";
-		reStrings[1] = "我";
-
-		return reStrings;
-	}
-
-	/*
-	 * 通过文件名获取drawable目录下图片
-	 */
-	public Bitmap getRes(String name) {
-		ApplicationInfo appInfo = context.getApplicationInfo();
-		int resID = getResources().getIdentifier(name, "drawable", appInfo.packageName);
-		return BitmapFactory.decodeResource(getResources(), resID);
-	}
-
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
@@ -201,27 +204,29 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		case R.id.sendButton:// 发送按钮 事件
 
 			if ("".equals(messageInputEdi.getText().toString().trim())) {
+
 				break;
 			}
 			Chat item;
 			if (clientIP.matches(".+\\..+\\..+\\..+")) {
-				item = new Chat(sharedPreferences.getString("author", "??"),
+				item = new Chat(sharedPreferences.getString("author", myIP),
 						messageInputEdi.getText().toString().trim(), 0, sharedPreferences.getString("head", "head_1"),
-						myIP);
+						myIP,Utils.getSysTime());
 				tcpClientThread = new TCPClientThread(mhandler, clientIP, TCPData.getMsg(item));
 				tcpClientThread.start();
 
 			} else if (clientIP.equals("我")) {
 
-				item = new Chat(sharedPreferences.getString("author", "??"),
+				item = new Chat(sharedPreferences.getString("author", myIP),
 						messageInputEdi.getText().toString().trim(), 0, sharedPreferences.getString("head", "head_1"),
-						clientIP);
+						clientIP,Utils.getSysTime());
 				adapt.add(item);
 
 				sqlOpenHelp.add(item);
 			} else {
-				item = new Chat(sharedPreferences.getString("other", "??"), messageInputEdi.getText().toString().trim(),
-						1, sharedPreferences.getString("head_other", "head_1"), clientIP);
+				item = new Chat(sharedPreferences.getString("other", "机器人"), messageInputEdi.getText().toString().trim(),
+						1, sharedPreferences.getString("head_other", "head_1"), clientIP,Utils.getSysTime());
+				
 				adapt.add(item);
 
 				sqlOpenHelp.add(item);
@@ -230,19 +235,10 @@ public class ChatFragment extends Fragment implements OnClickListener {
 			messageInputEdi.setText("");
 
 			break;
-		case 1:// 头像点击事件
-
-			break;
-		default:
-			break;
+		
+		
 		}
 	}
 
-	@Override
-	public void onResume() {
 
-		// spinerAdapter.clear();
-		// spinerAdapter.addAll(getSpinnerData());
-		super.onResume();
-	}
 }

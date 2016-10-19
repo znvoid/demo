@@ -10,6 +10,11 @@ import java.util.HashMap;
 
 import java.util.Map;
 
+import com.znvoid.demo.WifiUtil;
+import com.znvoid.demo.util.TCPData;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -25,9 +30,7 @@ public class TCPServerThread extends Thread {
 	 */
 	private static ServerSocket serverSocket;
 
-	/**
-	 * 客户端的IP
-	 */
+	private Context context;
 
 	/**
 	 * 客户端Socket的MAP集
@@ -38,10 +41,11 @@ public class TCPServerThread extends Thread {
 	public static final int SERVER_RECEIVED_MESSAGE = 0x1001;
 	public static final int SERVER_SEND_FAIL = 0x1002;
 	public static final int SERVER_SEND_SUCCEED = 0x1003;
+	public static final String CHATTEST = "CHATMESSAGE V1.0 CHATTEST";
 
 	public boolean isRun = true;
 
-	public TCPServerThread(Handler mHandler) {
+	public TCPServerThread(Context context,Handler mHandler) {
 		super();
 		this.mHandler = mHandler;
 
@@ -113,7 +117,7 @@ public class TCPServerThread extends Thread {
 
 		@Override
 		public void run() {
-			
+
 			Log.e("Light", "--------等待接收------");
 
 			while (!resocket.isClosed()) {
@@ -121,27 +125,34 @@ public class TCPServerThread extends Thread {
 				Log.e("Light", "--------开始接受------");
 				try {
 					InputStream inputStream = resocket.getInputStream();
-					byte buffer[] = new byte[1024*1024];
+					byte buffer[] = new byte[1024 * 1024];
 					int temp = 0;
 					Log.e("Light", "--------接受到1------");
-					
+
 					// 从InputStream当中读取客户端所发送的数据
 					while ((temp = inputStream.read(buffer)) != -1) {
-						
-						Message msg = new Message();
-						msg.what = SERVER_RECEIVED_MESSAGE;
-						msg.obj = new String(buffer, 0, temp,"gbk");
-						mHandler.sendMessage(msg);
+						String mesg = new String(buffer, 0, temp);
+						if (CHATTEST.equals(mesg)) {//收到测试请求
+							Log.e("Light", "收到测试请求");
+							OutputStream os=resocket.getOutputStream();
+							os.write(creatMsgForTest().getBytes());
+							os.flush();
+							
+						} else {
+							Message msg = new Message();
+							msg.what = SERVER_RECEIVED_MESSAGE;
+							msg.obj = mesg;
+							mHandler.sendMessage(msg);
+						}
+
 					}
-					
-					
 
 				} catch (IOException e) {
 					Log.e("Light", "--------异常关闭------");
 					try {
 						resocket.close();
 					} catch (IOException e1) {
-						
+
 						e1.printStackTrace();
 					}
 					e.printStackTrace();
@@ -155,7 +166,7 @@ public class TCPServerThread extends Thread {
 
 	public void sendMessage(String ip, String msg) {
 		Socket msocket = socketMap.get(ip);
-		System.out.println("--fasong---"+msocket+"-----");
+		System.out.println("--fasong---" + msocket + "-----");
 		if (msocket != null) {
 			if (!msocket.isClosed()) {
 				try {
@@ -163,8 +174,8 @@ public class TCPServerThread extends Thread {
 					os.write(msg.getBytes());
 					os.flush();
 					Message msg1 = mHandler.obtainMessage();
-					msg1.what =SERVER_SEND_SUCCEED ;
-					msg1.obj=msg;
+					msg1.what = SERVER_SEND_SUCCEED;
+					msg1.obj = msg;
 					mHandler.sendMessage(msg1);
 
 				} catch (IOException e) {
@@ -174,7 +185,7 @@ public class TCPServerThread extends Thread {
 			} else {
 				Log.e("Light", "closed");
 				Message msg1 = mHandler.obtainMessage();
-				msg1.obj=msg;
+				msg1.obj = msg;
 				msg1.what = SERVER_SEND_FAIL;
 				mHandler.sendMessage(msg1);// 结果返回给UI处理
 			}
@@ -183,7 +194,7 @@ public class TCPServerThread extends Thread {
 
 			Message msg1 = mHandler.obtainMessage();
 
-			msg1.obj=msg;
+			msg1.obj = msg;
 			msg1.what = SERVER_SEND_FAIL;
 			mHandler.sendMessage(msg1);// 结果返回给UI处理
 		}
@@ -215,5 +226,19 @@ public class TCPServerThread extends Thread {
 
 			e.printStackTrace();
 		}
+	}
+
+	public String creatMsgForTest() {
+		String result;
+		SharedPreferences sp = context.getSharedPreferences("configs", context.MODE_PRIVATE);
+
+		sp.getString("head", "head");
+		WifiUtil wifiUtil = new WifiUtil(context);
+
+		result = TCPData.CHATMESSAGE + TCPData.DIV + sp.getString("author", "???") + TCPData.DIV
+				+ sp.getString("head", "head") + TCPData.DIV + wifiUtil.getIP() +TCPData.DIV
+				+ wifiUtil.getMacAddress();
+
+		return result;
 	}
 }

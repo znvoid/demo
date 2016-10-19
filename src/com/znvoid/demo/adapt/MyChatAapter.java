@@ -1,6 +1,5 @@
 package com.znvoid.demo.adapt;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,34 +22,38 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public  class MyChatAapter extends BaseAdapter {
-	private int delposition=-1;
+public class MyChatAapter extends BaseAdapter {
+	private int delposition = -1;
 	private Context context;
-	
+
 	private List<Chat> datalist = new ArrayList<Chat>();
 
 	public MyChatAapter(Context context) {
 		super();
 		this.context = context;
-		
+
 	}
-//增加条目
+
+	// 增加条目
 	public void add(Chat item) {
 		datalist.add(item);
 		notifyDataSetChanged();
 	}
-	//删除条目
-public void remove(int position) {
-	
-	datalist.remove(position);
-	notifyDataSetChanged();
-}
-//设置数据
-public void setdata(List<Chat> list) {
-	datalist.clear();
-	datalist.addAll(list);
-	notifyDataSetChanged();
-}
+
+	// 删除条目
+	public void remove(int position) {
+
+		datalist.remove(position);
+		notifyDataSetChanged();
+	}
+
+	// 设置数据
+	public void setdata(List<Chat> list) {
+		datalist.clear();
+		datalist.addAll(list);
+		notifyDataSetChanged();
+	}
+
 	@Override
 	public int getCount() {
 		// TODO Auto-generated method stub
@@ -72,111 +75,106 @@ public void setdata(List<Chat> list) {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// TODO Auto-generated method stub
-		Chat chat=getItem(position);
-		/*if (convertView==null) {
-			if (context.getString(R.string.author).equals(chat.getAuthor())) {
-				convertView=LayoutInflater.from(context).inflate(R.layout.chat_message_own, null);
-			}else {
-				convertView=LayoutInflater.from(context).inflate(R.layout.chat_message_other, null);
-			}
-			
-		}
-		initlistcell( position, convertView,  parent);
-	
-		
-		return convertView;*/
-		
+		Chat chat = getItem(position);
+		/*
+		 * if (convertView==null) { if
+		 * (context.getString(R.string.author).equals(chat.getAuthor())) {
+		 * convertView=LayoutInflater.from(context).inflate(R.layout.
+		 * chat_message_own, null); }else {
+		 * convertView=LayoutInflater.from(context).inflate(R.layout.
+		 * chat_message_other, null); }
+		 * 
+		 * } initlistcell( position, convertView, parent);
+		 * 
+		 * 
+		 * return convertView;
+		 */
+
 		ViewHolder holder = null;
-		  
-		  if (convertView == null || (holder = (ViewHolder) convertView.getTag()).flag != chat.getDirection()) {
-		   holder = new ViewHolder();
-		   if (chat.getDirection() == Chat.MESSAGE_RECEIVE) {
-		    holder.flag = Chat.MESSAGE_RECEIVE;
-		    convertView = LayoutInflater.from(context).inflate(R.layout.chat_message_own, null);
-		   } else {
-		    holder.flag = Chat.MESSAGE_SEND;
-		    convertView = LayoutInflater.from(context).inflate(R.layout.chat_message_other, null);
-		   }
-		   holder.text = (TextView) convertView.findViewById(R.id.message);
-		   holder.tvauthor=(TextView) convertView.findViewById(R.id.author);
-		   holder.circleImageView=(CircleImageView) convertView.findViewById(R.id.imageView_author);
-		   
-		   convertView.setTag(holder);
-		  }
-		  holder.text.setText(chat.getMessage());
-		  holder.text.setId(position);
-		  holder.text.setOnLongClickListener(new OnLongClickListener() {
-			
+
+		if (convertView == null || (holder = (ViewHolder) convertView.getTag()).flag != chat.getDirection()) {
+			holder = new ViewHolder();
+			if (chat.getDirection() == Chat.MESSAGE_RECEIVE) {
+				holder.flag = Chat.MESSAGE_RECEIVE;
+				convertView = LayoutInflater.from(context).inflate(R.layout.chat_message_own, null);
+			} else {
+				holder.flag = Chat.MESSAGE_SEND;
+				convertView = LayoutInflater.from(context).inflate(R.layout.chat_message_other, null);
+			}
+			holder.text = (TextView) convertView.findViewById(R.id.message);
+			holder.tvauthor = (TextView) convertView.findViewById(R.id.author);
+			holder.tvtime = (TextView) convertView.findViewById(R.id.tv_sendtime);
+			holder.circleImageView = (CircleImageView) convertView.findViewById(R.id.imageView_author);
+
+			convertView.setTag(holder);
+		}
+		holder.text.setText(chat.getMessage());
+		holder.text.setId(position);
+		holder.text.setOnLongClickListener(new OnLongClickListener() {
+
 			@Override
 			public boolean onLongClick(View v) {
 				// TODO Auto-generated method stub
-				
-				delposition=v.getId();
-				
+
+				delposition = v.getId();
+
 				dialog();
-				
+
 				return true;
 			}
 		});
-		  holder.tvauthor.setText(chat.getAuthor()+"("+chat.getIp()+")");
-		  holder.circleImageView.setImageBitmap(getRes(chat.getHead()));
-		  
-		  
-		  return convertView;
-		 }
-		//优化listview的Adapter
-		 static class ViewHolder {
-		  TextView text;
-		  TextView tvauthor;
-		  CircleImageView circleImageView;
-		  int flag;
-		 }
-		 public Bitmap getRes(String name) {
-				ApplicationInfo appInfo = context .getApplicationInfo();
-				int resID =context. getResources().getIdentifier(name, "drawable", appInfo.packageName);
-				return BitmapFactory.decodeResource(context.getResources(), resID);
-				}
+		holder.tvauthor.setText(chat.getAuthor() + "(" + chat.getIp() + ")");
+		holder.tvtime.setText(chat.getTime());
+		holder.circleImageView.setImageBitmap(getRes(chat.getHead()));
+
+		return convertView;
+	}
+
+	// 优化listview的Adapter
+	static class ViewHolder {
 		
-			protected void dialog() {
-				
-				  AlertDialog.Builder builder = new Builder(context);
-				  builder.setMessage("确认删除吗？");
+		TextView text;
+		TextView tvauthor;
+		TextView tvtime;
+		CircleImageView circleImageView;
+		int flag;
+	}
 
-				  builder.setTitle("提示");
+	public Bitmap getRes(String name) {
+		ApplicationInfo appInfo = context.getApplicationInfo();
+		int resID = context.getResources().getIdentifier(name, "drawable", appInfo.packageName);
+		return BitmapFactory.decodeResource(context.getResources(), resID);
+	}
 
-				  builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+	protected void dialog() {
 
-				   @Override
-				   public void onClick(DialogInterface dialog, int which) {
-					   
-					   
-						new ChatSqlOpenHelp(context).delete(getItem(delposition));
-					   remove(delposition);
-					   
-					   dialog.dismiss();
+		AlertDialog.Builder builder = new Builder(context);
+		builder.setMessage("确认删除吗？");
 
-				   }
-				  });
+		builder.setTitle("提示");
 
-				  builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
 
-				   @Override
-				   public void onClick(DialogInterface dialog, int which) {
-					   delposition=-1;
-					   dialog.dismiss();
-				   }
-				  });
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
 
-				  builder.create().show();
-				 } 
+				new ChatSqlOpenHelp(context).delete(getItem(delposition));
+				remove(delposition);
+
+				dialog.dismiss();
+
+			}
+		});
+
+		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				delposition = -1;
+				dialog.dismiss();
+			}
+		});
+
+		builder.create().show();
+	}
 }
-		
-		
-	
-	
-
-	
-
-
-
-

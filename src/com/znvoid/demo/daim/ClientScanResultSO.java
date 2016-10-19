@@ -1,19 +1,19 @@
-package com.znvoid.demo.net;
+package com.znvoid.demo.daim;
 
 public class ClientScanResultSO {
 	
 	private String ip;
 	
 	private String hwAddress;
-	private String device;
+	private String headName;
 	
 	private boolean isReachable;
 	private String hostname;
-	public ClientScanResultSO(String ip, String hwAddress, String device, boolean isReachable, String hostname) {
+	public ClientScanResultSO(String ip, String hwAddress, String headName, boolean isReachable, String hostname) {
 		super();
 		this.ip = ip;
 		this.hwAddress = hwAddress;
-		this.device = device;
+		this.headName = headName;
 		this.isReachable = isReachable;
 		this.hostname = hostname;
 	}
@@ -29,12 +29,7 @@ public class ClientScanResultSO {
 	public void setHwAddress(String hwAddress) {
 		this.hwAddress = hwAddress;
 	}
-	public String getDevice() {
-		return device;
-	}
-	public void setDevice(String device) {
-		this.device = device;
-	}
+	
 	public boolean isReachable() {
 		return isReachable;
 	}
@@ -46,6 +41,12 @@ public class ClientScanResultSO {
 	}
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
+	}
+	public String getHeadName() {
+		return headName;
+	}
+	public void setHeadName(String headName) {
+		this.headName = headName;
 	}
 	
 	

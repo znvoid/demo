@@ -4,6 +4,7 @@ package com.znvoid.demo.fragment;
 
 
 import com.znvoid.demo.R;
+import com.znvoid.demo.WifiUtil;
 import com.znvoid.demo.util.Utils;
 import com.znvoid.demo.view.CircleImageView;
 
@@ -51,6 +52,7 @@ public class AccountFragment extends Fragment implements OnClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		context=getActivity();
+		String mIP=new WifiUtil(context).getIP();
 		sharedPreferences=context.getSharedPreferences("configs",context.MODE_PRIVATE);
 		head=sharedPreferences.getString("head", "head_1");
 		head_other=sharedPreferences.getString("head_other", "head_1");
@@ -61,8 +63,8 @@ public class AccountFragment extends Fragment implements OnClickListener {
 		cView_other.setImageBitmap(Utils.getRes(context,sharedPreferences.getString("head_other", "head_1")));
 		dText = (EditText) view.findViewById(R.id.dt_author);
 		dText_othr = (EditText) view.findViewById(R.id.dt_other);
-		dText.setText(sharedPreferences.getString("author", "rad"));
-		dText_othr.setText(sharedPreferences.getString("other", "cat"));
+		dText.setText(sharedPreferences.getString("author", mIP));
+		dText_othr.setText(sharedPreferences.getString("other", "»úÆ÷ÈË"));
 		button=(Button) view.findViewById(R.id.bt_saveaccunt);
 		button.setOnClickListener(this);
 		gridView = (GridView) view.findViewById(R.id.gv_head);

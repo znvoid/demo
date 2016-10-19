@@ -11,7 +11,16 @@ public class Chat {
    
     private String head;
     private String ip;
+    private String time;
    
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
 
 	public String getHead() {
 		return head;
@@ -33,13 +42,14 @@ public class Chat {
 		this.message = message;
 	}
 
-	public Chat(String author, String message, int direction, String head, String ip) {
+	public Chat(String author, String message, int direction, String head, String ip,String time) {
 		super();
 		this.author = author;
 		this.message = message;
 		this.direction = direction;
 		this.head = head;
 		this.ip = ip;
+		this.time = time;
 	}
 
 	public Chat(String author, String message, int direction) {
