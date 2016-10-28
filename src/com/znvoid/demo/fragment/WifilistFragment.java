@@ -3,8 +3,8 @@ package com.znvoid.demo.fragment;
 import java.util.List;
 
 import com.znvoid.demo.R;
-import com.znvoid.demo.WifiUtil;
 import com.znvoid.demo.adapt.WifiFragmListviewAdapt;
+import com.znvoid.demo.util.WifiUtil;
 
 import android.app.Fragment;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.znvoid.demo;
+package com.znvoid.demo.util;
 
 import java.util.List;
 

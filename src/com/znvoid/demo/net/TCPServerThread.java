@@ -10,8 +10,8 @@ import java.util.HashMap;
 
 import java.util.Map;
 
-import com.znvoid.demo.WifiUtil;
 import com.znvoid.demo.util.TCPData;
+import com.znvoid.demo.util.WifiUtil;
 
 import android.content.Context;
 import android.content.SharedPreferences;

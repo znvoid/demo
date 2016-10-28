@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.znvoid.demo.R;
-import com.znvoid.demo.WifiUtil;
-
 import com.znvoid.demo.adapt.MyChatAapter;
 import com.znvoid.demo.daim.Chat;
 
@@ -17,6 +15,7 @@ import com.znvoid.demo.net.TCPServerThread;
 import com.znvoid.demo.sql.ChatSqlOpenHelp;
 import com.znvoid.demo.util.TCPData;
 import com.znvoid.demo.util.Utils;
+import com.znvoid.demo.util.WifiUtil;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;

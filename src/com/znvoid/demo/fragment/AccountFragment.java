@@ -4,8 +4,8 @@ package com.znvoid.demo.fragment;
 
 
 import com.znvoid.demo.R;
-import com.znvoid.demo.WifiUtil;
 import com.znvoid.demo.util.Utils;
+import com.znvoid.demo.util.WifiUtil;
 import com.znvoid.demo.view.CircleImageView;
 
 import android.app.Fragment;
