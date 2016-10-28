@@ -43,6 +43,7 @@ public class Menulistviewadapt extends BaseAdapter {
 		arrayList.add(new MLvData(R.drawable.ic_chat, "ÁÄÌì"));
 		arrayList.add(new MLvData(R.drawable.ic_wifi, "wifi"));
 		arrayList.add(new MLvData(R.drawable.ic_wifi, "¾ÖÓòÍø"));
+		arrayList.add(new MLvData(R.drawable.ic_desk, "ÔÄ¶Á"));
 		arrayList.add(new MLvData(R.drawable.ic_settings, "ÉèÖÃ"));
 	}
 

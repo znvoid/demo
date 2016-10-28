@@ -4,6 +4,7 @@ import com.znvoid.demo.adapt.Menulistviewadapt;
 import com.znvoid.demo.daim.MLvData;
 import com.znvoid.demo.fragment.AccountFragment;
 import com.znvoid.demo.fragment.ChatFragment;
+import com.znvoid.demo.fragment.DeskFragment;
 import com.znvoid.demo.fragment.NetFragment;
 import com.znvoid.demo.fragment.WifilistFragment;
 import com.znvoid.demo.util.Utils;
@@ -47,6 +48,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private WifilistFragment wifilistFragment = new WifilistFragment();
 	private NetFragment netFragment=new NetFragment();
 	private AccountFragment accountFragment=new AccountFragment();
+	private DeskFragment deskFragment=new DeskFragment();
+	
 	private String mIP;
 	private WifiUtil wifiUtil;
 	private Fragment mContent = new Fragment();// 当前Fragment
@@ -64,7 +67,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		context=this;
 		wifiUtil=new WifiUtil(context);
 		mIP=wifiUtil.getIP();
-		mTitle = (String) getTitle();
+		
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerView = (LinearLayout) findViewById(R.id.left_drawer);
 		mDrawerList = (ListView) findViewById(R.id.left_listview);
@@ -72,6 +75,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				R.string.closeDrawerContent) {
 			@Override
 			public void onDrawerOpened(View drawerView) {
+				mTitle = (String) getTitle();
 				getActionBar().setTitle("菜单");
 				invalidateOptionsMenu();
 			cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
@@ -81,7 +85,10 @@ public class MainActivity extends Activity implements OnClickListener {
 
 			@Override
 			public void onDrawerClosed(View drawerView) {
-				getActionBar().setTitle(mTitle);
+				if ("菜单".equals(getTitle())) {
+					getActionBar().setTitle(mTitle);
+				}
+				
 				invalidateOptionsMenu();
 				super.onDrawerClosed(drawerView);
 			}
@@ -112,20 +119,26 @@ public class MainActivity extends Activity implements OnClickListener {
 				MLvData data = (MLvData) mDrawerList.getItemAtPosition(position);
 				switch (position) {
 				case 0:
+					getActionBar().setTitle("账户");
 					switchContent(accountFragment);
 					break;
 
 				case 1:
+					getActionBar().setTitle("聊天");
 					switchContent(chatFragment);
 					break;
 
 				case 2:
-
+					getActionBar().setTitle("WiFi");
 					switchContent(wifilistFragment);
 					break;
 				case 3:
-
+					getActionBar().setTitle("局域网");
 					switchContent(netFragment);
+					break;
+				case 4://阅读
+					getActionBar().setTitle("书架");
+					switchContent(deskFragment);
 					break;
 				default:
 					break;
