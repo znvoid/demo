@@ -2,6 +2,7 @@ package com.znvoid.demo;
 
 import com.znvoid.demo.adapt.Menulistviewadapt;
 import com.znvoid.demo.daim.MLvData;
+import com.znvoid.demo.fragment.AccountFragm;
 import com.znvoid.demo.fragment.AccountFragment;
 import com.znvoid.demo.fragment.ChatFragment;
 import com.znvoid.demo.fragment.DeskFragment;
@@ -47,7 +48,8 @@ public class MainActivity extends Activity implements OnClickListener {
 	private ChatFragment chatFragment = new ChatFragment();
 	private WifilistFragment wifilistFragment = new WifilistFragment();
 	private NetFragment netFragment=new NetFragment();
-	private AccountFragment accountFragment=new AccountFragment();
+	//private AccountFragment accountFragment=new AccountFragment();
+	private AccountFragm accountFragment=new AccountFragm();
 	private DeskFragment deskFragment=new DeskFragment();
 	
 	private String mIP;

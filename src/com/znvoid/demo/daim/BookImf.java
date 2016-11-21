@@ -57,7 +57,7 @@ public String getName() {
 	if ("deful".equals(path)) {
 		return getPath();
 	}
-	System.out.println(path);
+	
 	int f=path.lastIndexOf("/");
 	int t=path.lastIndexOf(".");
 	

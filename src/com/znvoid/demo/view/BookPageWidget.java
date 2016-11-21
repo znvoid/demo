@@ -220,8 +220,8 @@ private BooksSqlOpenHelp sqlOpenHelp;
 
 	private boolean inShowMeneArea(float x0, float y0) {
 
-		return x0 > (mWidth * 2 / 5 - 5) && x0 > (mWidth * 3 / 5 + 5) && y0 > (mHeight * 2 / 5)
-				&& y0 > (mHeight * 3 / 5);
+		return x0 > (mWidth * 2 / 5 ) && x0 < (mWidth * 3 / 5 ) && y0 > (mHeight * 2 / 5)
+				&& y0 <(mHeight * 3 / 5);
 	}
 
 	/**

@@ -3,6 +3,7 @@ package com.znvoid.demo.view;
 import com.znvoid.demo.R;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,8 +21,18 @@ public class DeskGridView extends GridView {
 
 	public DeskGridView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		background = BitmapFactory.decodeResource(getResources(),
+		TypedArray a = context.obtainStyledAttributes(attrs,R.styleable.DeskGridView); 
+		
+		int id= a.getResourceId(R.styleable.DeskGridView_mbackground, -1);
+		
+		if (id==-1) {
+			background = BitmapFactory.decodeResource(getResources(),
 			          R.drawable.bookshelf_layer_center1);
+		}else {
+			background = BitmapFactory.decodeResource(getResources(),
+			         id);
+		}
+		
 	}
 
 	public DeskGridView(Context context) {

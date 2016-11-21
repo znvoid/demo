@@ -11,8 +11,8 @@
         android:layout_height="match_parent" >
     </FrameLayout>
     <!-- menu view -->
-  <include layout="@layout/left_menu" 
-
+  <include
+       layout="@layout/left_menu" 
       />
    
 

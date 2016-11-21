@@ -44,7 +44,7 @@ public class BookPageFactory {
 	private int mLineCount; // 每页可以显示的行数
 	private float mVisibleHeight; // 绘制内容的宽
 	private float mVisibleWidth; // 绘制内容的宽
-	private boolean m_isfirstPage,m_islastPage;
+	private boolean m_isfirstPage, m_islastPage;
 
 	// private int m_nLineSpaceing = 5;
 
@@ -65,15 +65,13 @@ public class BookPageFactory {
 
 	public void openbook(String strFilePath) throws IOException {
 		book_file = new File(strFilePath);
-		//检查文件编码
-		FileUtils fileUtils=new FileUtils();
-		m_strCharsetName=fileUtils.guessFileEncoding(book_file);
+		// 检查文件编码
+		FileUtils fileUtils = new FileUtils();
+		m_strCharsetName = fileUtils.guessFileEncoding(book_file);
 		long lLen = book_file.length();
 		m_mbBufLen = (int) lLen;
-		m_mbBuf = new RandomAccessFile(book_file, "r").getChannel().map(
-				FileChannel.MapMode.READ_ONLY, 0, lLen);
+		m_mbBuf = new RandomAccessFile(book_file, "r").getChannel().map(FileChannel.MapMode.READ_ONLY, 0, lLen);
 	}
-	
 
 	protected byte[] readParagraphBack(int nFromPos) {
 		int nEnd = nFromPos;
@@ -123,7 +121,6 @@ public class BookPageFactory {
 		}
 		return buf;
 	}
-
 
 	// 读取上一段落
 	protected byte[] readParagraphForward(int nFromPos) {
@@ -188,8 +185,7 @@ public class BookPageFactory {
 				lines.add(strParagraph);
 			}
 			while (strParagraph.length() > 0) {
-				int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth,
-						null);
+				int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth, null);
 				lines.add(strParagraph.substring(0, nSize));
 				strParagraph = strParagraph.substring(nSize);
 				if (lines.size() >= mLineCount) {
@@ -198,8 +194,7 @@ public class BookPageFactory {
 			}
 			if (strParagraph.length() != 0) {
 				try {
-					m_mbBufEnd -= (strParagraph + strReturn)
-							.getBytes(m_strCharsetName).length;
+					m_mbBufEnd -= (strParagraph + strReturn).getBytes(m_strCharsetName).length;
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -231,8 +226,7 @@ public class BookPageFactory {
 				paraLines.add(strParagraph);
 			}
 			while (strParagraph.length() > 0) {
-				int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth,
-						null);
+				int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth, null);
 				paraLines.add(strParagraph.substring(0, nSize));
 				strParagraph = strParagraph.substring(nSize);
 			}
@@ -254,9 +248,10 @@ public class BookPageFactory {
 	public void prePage() throws IOException {
 		if (m_mbBufBegin <= 0) {
 			m_mbBufBegin = 0;
-			m_isfirstPage=true;
+			m_isfirstPage = true;
 			return;
-		}else m_isfirstPage=false;
+		} else
+			m_isfirstPage = false;
 		m_lines.clear();
 		pageUp();
 		m_lines = pageDown();
@@ -264,9 +259,10 @@ public class BookPageFactory {
 
 	public void nextPage() throws IOException {
 		if (m_mbBufEnd >= m_mbBufLen) {
-			m_islastPage=true;
+			m_islastPage = true;
 			return;
-		}else m_islastPage=false;
+		} else
+			m_islastPage = false;
 		m_lines.clear();
 		m_mbBufBegin = m_mbBufEnd;
 		m_lines = pageDown();
@@ -291,37 +287,56 @@ public class BookPageFactory {
 		String strPercent = df.format(fPercent * 100) + "%";
 		int nPercentWidth = (int) mPaint.measureText("999.9%") + 1;
 		c.drawText(strPercent, mWidth - nPercentWidth, mHeight - 5, mPaint);
-		//System.out.println(m_mbBufBegin+"-------"+m_mbBufEnd);
+		// System.out.println(m_mbBufBegin+"-------"+m_mbBufEnd);
 	}
 
 	public void setBgBitmap(Bitmap BG) {
 		m_book_bg = BG;
 	}
-	
+
 	public boolean isfirstPage() {
 		return m_isfirstPage;
 	}
+
 	public boolean islastPage() {
 		return m_islastPage;
 	}
+
 	public int getP() {
 		return m_mbBufBegin;
 	}
+
 	public void setP(int p) {
-		m_mbBufBegin=p;
-		m_mbBufEnd=p;
+		m_mbBufBegin = p;
+		m_mbBufEnd = p;
 		m_lines.clear();
 	}
+
 	public void setP(float f) {
-		m_mbBufBegin=(int) (f* m_mbBufLen);
-		m_mbBufEnd=m_mbBufBegin;
+		m_mbBufBegin = (int) (f * m_mbBufLen);
+		m_mbBufEnd = m_mbBufBegin;
 		m_lines.clear();
 	}
+
 	public String getBookName() {
 		return book_file.getName();
 	}
+
 	public String getBookPath() {
 		return book_file.getPath();
+	}
+
+	public void setSize(int size) {
+		m_fontSize = size;
+		mPaint.setTextSize(m_fontSize);
+		mLineCount = (int) (mVisibleHeight / m_fontSize); // 可显示的行数
+
+	}
+
+	public void setColor(int color) {
+
+		m_textColor = color;
+		mPaint.setColor(m_textColor);
 	}
 
 }

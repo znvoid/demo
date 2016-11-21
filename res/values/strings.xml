@@ -9,5 +9,19 @@
     <string name="other">cat</string>
     <string name="openDrawerContent">Drawer open</string>
     <string name="closeDrawerContent">Drawer close</string>
+    <string name="filesearch">扫描</string>
+    
+    
+     <string name="open_file">打开文件</string>
+    <string name="exit">退出程序</string>
+    <string name="up_one_level">..(返回上一级目录)</string>
+    <string name="current_dir">.(刷新)</string>
+    <string name="set_font_color">字体颜色</string>
+    <string name="set_font_size">字体大小</string>
+    <string name="set_screen_light">屏幕亮度</string>
+    <string name="set_background">背景主题</string>
+    <string name="set_page_effect">翻页效果</string>
+    <string name="mode_paper">纸张模式</string>
+    <string name="mode_slide">滑动模式</string>
 
 </resources>

@@ -4,6 +4,8 @@ package com.znvoid.demo;
 
 import java.io.IOException;
 
+import com.znvoid.demo.daim.BookCenterAreaTouchListener;
+import com.znvoid.demo.menu.TxtViewMenu;
 import com.znvoid.demo.view.BookPageFactory;
 import com.znvoid.demo.view.BookPageWidget;
 
@@ -14,9 +16,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
+
 
 
 public class BookpageActivity extends Activity {
@@ -26,7 +30,7 @@ public class BookpageActivity extends Activity {
 	Bitmap mCurPageBitmap, mNextPageBitmap;
 	Canvas mCurPageCanvas, mNextPageCanvas;
 	BookPageFactory pagefactory;
-
+	TxtViewMenu mMenu;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +76,30 @@ public class BookpageActivity extends Activity {
 		}
 
 		mPageWidget.setBookPageFactory(pagefactory);
-	
-			
+		mPageWidget.setBookCenterAreaTouchListener(new PopMenu());
+		initMenu()	;
 	}
+	
+	private void initMenu() {
+		mMenu = new TxtViewMenu(this);
+		
+		
+	}
+
+	private class PopMenu implements BookCenterAreaTouchListener{
+
+		@Override
+		public void onAreaTouch() {
+			mMenu.showAtLocation(getWindow().getDecorView(), Gravity.BOTTOM, 0, 0);
+			
+		}
+
+		@Override
+		public void onOutSideAreaTouch() {
+			
+			mMenu.dismiss();
+		}
+		
+	}
+	
 }

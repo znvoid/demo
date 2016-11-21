@@ -250,9 +250,9 @@ public class FileUtils {
 	 * FileUtils.getSpecificTypeOfFile(this, new String[]{".doc",".apk"});  
 	 */
 	
-	public static List<String> getSpecificTypeOfFile(Context context,String[] extension)  
+	public static List<File> getSpecificTypeOfFile(Context context,String[] extension)  
     {  
-		List<String> result=new ArrayList<String>();
+		List<File> result=new ArrayList<File>();
         //从外存中获取  
         Uri fileUri=Files.getContentUri("external");  
         //筛选列，这里只筛选了：文件路径和不含后缀的文件名  
@@ -283,10 +283,41 @@ public class FileUtils {
             do{  
                 //输出文件的完整路径  
                 String data=cursor.getString(0);  
-                result.add(data);
+                
+                System.out.println(data);
+                result.add(new File(data));
             }while(cursor.moveToPrevious());  
         }  
         cursor.close();  
           return result;
     }  
+	/*
+	 * 文件遍历
+	 */
+	public  static List<File> FindFile(File file, String key_search)
+    {
+        List<File> list = new ArrayList<File>();
+        if (file.isDirectory()) {
+            File[] all_file = file.listFiles();
+            if (all_file != null) {
+                for (File tempf : all_file) {
+                    if (tempf.isDirectory()) {
+                        if (tempf.getName().toLowerCase().lastIndexOf(key_search) > -1) {
+                            list.add(tempf);
+                        }
+                        list.addAll(FindFile(tempf, key_search));
+                    }
+                    else 
+                    {
+                        if (tempf.getName().toLowerCase().lastIndexOf(key_search) > -1) {
+                            list.add(tempf);
+                        }
+                    }
+                }
+            }
+        } 
+        return list;
+    }
+	
+	
 }  

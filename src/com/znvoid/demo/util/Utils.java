@@ -9,8 +9,12 @@ import java.util.Date;
 import java.util.List;
 
 import com.znvoid.demo.daim.ClientScanResultSO;
+import com.znvoid.demo.sql.ChatSqlOpenHelp;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -87,4 +91,36 @@ public class Utils {
 		String    str    =    formatter.format(curDate);
 		return str;
 	}
+	
+	
+	public static void showDialog(final Context context,final DialogInterface.OnClickListener OnClickListener) {
+
+		AlertDialog.Builder builder = new Builder(context);
+		builder.setMessage("确认删除吗？");
+
+		builder.setTitle("提示");
+
+		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+
+				OnClickListener.onClick(dialog, which);
+				dialog.dismiss();
+
+			}
+		});
+
+		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+
+				dialog.dismiss();
+			}
+		});
+
+		builder.create().show();
+	}
+	
 }
