@@ -1,12 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.znvoid.demo.MainActivity" >
+    tools:context="com.znvoid.demo.MainActivity"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
 
-    <item
+    <item 
         android:id="@+id/action_websearch"
        android:icon="@drawable/ic_search"
-        android:title="action_websearch"
-        android:showAsAction="ifRoom|withText"
+        android:title="@string/websercher"
+        app:showAsAction="always"
+        app:actionViewClass="android.support.v7.widget.SearchView"
         />
 
 </menu>

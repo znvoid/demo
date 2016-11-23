@@ -14,15 +14,20 @@ import com.znvoid.demo.view.CircleImageView;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
-
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,12 +35,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends AppCompatActivity implements OnClickListener {
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -55,11 +61,13 @@ public class MainActivity extends Activity implements OnClickListener {
 	private String mIP;
 	private WifiUtil wifiUtil;
 	private Fragment mContent = new Fragment();// 当前Fragment
-
+	private Toolbar toolbar;
+	SearchView searchView;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
 		initsetting();// 初始化设置
 
 	}
@@ -69,16 +77,19 @@ public class MainActivity extends Activity implements OnClickListener {
 		context=this;
 		wifiUtil=new WifiUtil(context);
 		mIP=wifiUtil.getIP();
+		toolbar = (Toolbar)findViewById(R.id.toolbar);
 		
+		setSupportActionBar(toolbar);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerView = (LinearLayout) findViewById(R.id.left_drawer);
 		mDrawerList = (ListView) findViewById(R.id.left_listview);
-		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.openDrawerContent,
+		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,  toolbar, R.string.openDrawerContent,
 				R.string.closeDrawerContent) {
 			@Override
 			public void onDrawerOpened(View drawerView) {
-				mTitle = (String) getTitle();
-				getActionBar().setTitle("菜单");
+				mTitle = (String)toolbar. getTitle();
+				
+				toolbar.setTitle("菜单");
 				invalidateOptionsMenu();
 			cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
 				textView.setText(sp.getString("author", mIP));
@@ -87,8 +98,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
 			@Override
 			public void onDrawerClosed(View drawerView) {
-				if ("菜单".equals(getTitle())) {
-					getActionBar().setTitle(mTitle);
+				if ("菜单".equals(getSupportActionBar().getTitle())) {
+					
+					toolbar.setTitle(mTitle);
 				}
 				
 				invalidateOptionsMenu();
@@ -97,8 +109,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		};
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setHomeButtonEnabled(true);
+		//getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		//getSupportActionBar().setHomeButtonEnabled(true);
 		cim = (CircleImageView) findViewById(R.id.profile_image);
 		textView=(TextView) findViewById(R.id.profile_tv);
 		cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
@@ -121,25 +133,25 @@ public class MainActivity extends Activity implements OnClickListener {
 				MLvData data = (MLvData) mDrawerList.getItemAtPosition(position);
 				switch (position) {
 				case 0:
-					getActionBar().setTitle("账户");
+					toolbar.setTitle("账户");
 					switchContent(accountFragment);
 					break;
 
 				case 1:
-					getActionBar().setTitle("聊天");
+					toolbar.setTitle("聊天");
 					switchContent(chatFragment);
 					break;
 
 				case 2:
-					getActionBar().setTitle("WiFi");
+					toolbar.setTitle("WiFi");
 					switchContent(wifilistFragment);
 					break;
 				case 3:
-					getActionBar().setTitle("局域网");
+					toolbar.setTitle("局域网");
 					switchContent(netFragment);
 					break;
 				case 4://阅读
-					getActionBar().setTitle("书架");
+					toolbar.setTitle("书架");
 					switchContent(deskFragment);
 					break;
 				default:
@@ -194,6 +206,31 @@ public class MainActivity extends Activity implements OnClickListener {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main, menu);
+		
+		MenuItem item = menu.findItem(R.id.action_websearch);
+		searchView = (SearchView) MenuItemCompat.getActionView(item);
+		final ImageView searchView_close = (ImageView) searchView.findViewById(R.id.search_close_btn);
+		searchView.setQueryHint("百度搜索");
+		searchView.setOnQueryTextListener(new OnQueryTextListener() {
+			
+			@Override
+			public boolean onQueryTextSubmit(String text) {
+				
+				
+				webSercher(text);
+				//searchView.clearFocus();
+				searchView_close.performClick();
+				searchView_close.performClick();
+				return false;
+			}
+			
+			@Override
+			public boolean onQueryTextChange(String arg0) {
+				
+				return false;
+			}
+		});
+		
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -207,22 +244,22 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-		switch (item.getItemId()) {
-		case R.id.action_websearch:
-			Intent intent = new Intent();
-			intent.setAction("android.intent.action.VIEW");
-			Uri uri = Uri.parse("http://www.baidu.com");
-			intent.setData(uri);
-			startActivity(intent);
-
-			break;
-
-		default:
-			break;
-		}
+//		if (mDrawerToggle.onOptionsItemSelected(item)) {
+//			return true;
+//		}
+//		switch (item.getItemId()) {
+//		case R.id.action_websearch:
+//			Intent intent = new Intent();
+//			intent.setAction("android.intent.action.VIEW");
+//			Uri uri = Uri.parse("http://www.baidu.com");
+//			intent.setData(uri);
+//			startActivity(intent);
+//
+//			break;
+//
+//		default:
+//			break;
+//		}
 
 		return super.onOptionsItemSelected(item);
 	}
@@ -239,5 +276,26 @@ public class MainActivity extends Activity implements OnClickListener {
 		// TODO Auto-generated method stub
 		super.onConfigurationChanged(newConfig);
 		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
+	
+	private void webSercher(String string) {
+		if ("".equals(string)) {
+			return;
+		}
+		
+		Intent intent = new Intent();
+		intent.setAction("android.intent.action.VIEW");
+		Uri uri = Uri.parse("http://www.baidu.com/s?wd="+string);
+		intent.setData(uri);
+		startActivity(intent);
+		
+		
+		
+//		intent.setAction(Intent.ACTION_WEB_SEARCH);
+//		    intent.putExtra(SearchManager.QUERY, string);
+//		    startActivity(intent);
+		
+		
+		
 	}
 }

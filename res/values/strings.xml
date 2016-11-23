@@ -10,6 +10,7 @@
     <string name="openDrawerContent">Drawer open</string>
     <string name="closeDrawerContent">Drawer close</string>
     <string name="filesearch">扫描</string>
+    <string name="websercher">"百度搜索"</string>
     
     
      <string name="open_file">打开文件</string>
