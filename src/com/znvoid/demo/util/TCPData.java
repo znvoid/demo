@@ -2,6 +2,9 @@ package com.znvoid.demo.util;
 
 import com.znvoid.demo.daim.Chat;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 /*
  * 根据TCP得到的msg进行分析
  */
@@ -16,7 +19,11 @@ public class TCPData {
 
 		return result;
 	}
-	
+	/**
+	 * Sting转Chat,String 为接收到的信息
+	 * @param msg
+	 * @return
+	 */
 	public static Chat getChat(String msg) {
 		String[] strings=msg.split(DIV);
 		Chat chat=null;
@@ -30,6 +37,26 @@ public class TCPData {
 		
 		
 		return chat;
+	}
+	
+	/**
+	 * 为测试连接生成数据
+	 * @param context
+	 * @return
+	 */
+	public static String creatTestMessage(Context context) {
+		
+		String result;
+		SharedPreferences sp = context.getSharedPreferences("configs", context.MODE_PRIVATE);
+
+		sp.getString("head", "head_0");
+		WifiUtil wifiUtil = new WifiUtil(context);
+
+		result = TCPData.CHATMESSAGE + TCPData.DIV + sp.getString("author", "???") + TCPData.DIV
+				+ sp.getString("head", "head") + TCPData.DIV + wifiUtil.getIP() +TCPData.DIV
+				+ wifiUtil.getMacAddress();
+
+		return result;
 	}
 	
 }

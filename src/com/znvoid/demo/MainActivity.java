@@ -5,9 +5,11 @@ import com.znvoid.demo.daim.MLvData;
 import com.znvoid.demo.fragment.AccountFragm;
 import com.znvoid.demo.fragment.AccountFragment;
 import com.znvoid.demo.fragment.ChatFragment;
+import com.znvoid.demo.fragment.ContactsFragment;
 import com.znvoid.demo.fragment.DeskFragment;
 import com.znvoid.demo.fragment.NetFragment;
 import com.znvoid.demo.fragment.WifilistFragment;
+import com.znvoid.demo.server.TCPSevice;
 import com.znvoid.demo.util.Utils;
 import com.znvoid.demo.util.WifiUtil;
 import com.znvoid.demo.view.CircleImageView;
@@ -18,6 +20,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,7 +54,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 	private LinearLayout mDrawerView;
 	private SharedPreferences sp;
 	private Context context;
-	private ChatFragment chatFragment = new ChatFragment();
+	private static ChatFragment chatFragment = new ChatFragment();
+	private ContactsFragment contactsFragment=new ContactsFragment();
 	private WifilistFragment wifilistFragment = new WifilistFragment();
 	private NetFragment netFragment=new NetFragment();
 	//private AccountFragment accountFragment=new AccountFragment();
@@ -69,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 		setContentView(R.layout.activity_main);
 		
 		initsetting();// 初始化设置
-
+		startService(new Intent(this,TCPSevice.class));
 	}
 
 	private void initsetting() {
@@ -77,6 +81,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 		context=this;
 		wifiUtil=new WifiUtil(context);
 		mIP=wifiUtil.getIP();
+		
+		if (sp.getString("ID", "NULL").equals("NULL")) {
+			
+			Editor editor =sp.edit();
+			editor.putString("ID", Utils.getId(context));
+			editor.putString("author", Utils.getId(context));
+			editor.commit();
+			
+		}
+		System.out.println("id:----"+Utils.getId(context));
+		
 		toolbar = (Toolbar)findViewById(R.id.toolbar);
 		
 		setSupportActionBar(toolbar);
@@ -118,7 +133,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 		// FragmentManager
 
 		// chatfragment初始化
-		switchContent(chatFragment);
+		switchContent(contactsFragment);
+//		switchContent(chatFragment);
 		// getFragmentManager().beginTransaction().replace(R.id.mian_frame,
 		// chatFragment, "chatfragment").commit();
 

@@ -9,7 +9,9 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/listFooter"
         android:divider="#00000000"
-        android:transcriptMode="alwaysScroll" />
+        android:transcriptMode="normal" 
+        android:stackFromBottom="true"
+        />
 
     <LinearLayout
         android:id="@+id/listFooter"

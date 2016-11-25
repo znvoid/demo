@@ -18,6 +18,9 @@ import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.wifi.WifiManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class Utils {
@@ -122,5 +125,29 @@ public class Utils {
 
 		builder.create().show();
 	}
+	public static String getId(Context context) {
+		
+	String 	mac=new WifiUtil(context).getMacAddress();
 	
+		if (mac!=null&&!"NULL".equals(mac)) {
+			String[] strings=mac.split(":");
+			if (strings.length==6) {
+				return strings[0]+strings[1]+strings[2]+strings[3]+strings[4]+strings[5];
+			}else {
+				TelephonyManager tm=(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+				String d=(tm==null)?"NULL":tm.getDeviceId();
+				
+				return	(d==null||d.matches("0+"))?("NULL"+(int)(Math.random()*0x5f734d9)):d;
+			}
+			
+		}else {
+			TelephonyManager tm=(TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+			String d=(tm==null)?"NULL":tm.getDeviceId();
+			
+			return	(d==null||d.matches("0+"))?("NULL"+(int)(Math.random()*0x5f734d9)):d;
+		}
+		
+		
+		
+	}
 }

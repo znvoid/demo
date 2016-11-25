@@ -4,7 +4,7 @@ package com.znvoid.demo;
 
 import java.io.IOException;
 
-import com.znvoid.demo.daim.BookCenterAreaTouchListener;
+import com.znvoid.demo.imf.BookCenterAreaTouchListener;
 import com.znvoid.demo.menu.TxtViewMenu;
 import com.znvoid.demo.view.BookPageFactory;
 import com.znvoid.demo.view.BookPageWidget;

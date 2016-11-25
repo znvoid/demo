@@ -35,13 +35,13 @@
             android:textOn="机器人" />
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/account_tv1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignRight="@+id/account_head"
             android:layout_alignTop="@+id/account_switch"
             android:layout_marginRight="20dp"
-            android:text="头像及昵称" />
+            android:text="人物头像及昵称" />
 
         <com.znvoid.demo.view.DeskGridView
             xmlns:app="http://schemas.android.com/apk/res-auto"

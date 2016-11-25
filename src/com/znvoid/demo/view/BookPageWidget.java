@@ -2,7 +2,7 @@ package com.znvoid.demo.view;
 
 import java.io.IOException;
 
-import com.znvoid.demo.daim.BookCenterAreaTouchListener;
+import com.znvoid.demo.imf.BookCenterAreaTouchListener;
 import com.znvoid.demo.sql.BooksSqlOpenHelp;
 
 import android.content.Context;

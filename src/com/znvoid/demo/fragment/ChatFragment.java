@@ -8,10 +8,14 @@ import com.znvoid.demo.R;
 import com.znvoid.demo.adapt.MyChatAapter;
 import com.znvoid.demo.daim.Chat;
 
-
 import com.znvoid.demo.net.SearchThread;
 import com.znvoid.demo.net.TCPClientThread;
-import com.znvoid.demo.net.TCPServerThread;
+import com.znvoid.demo.net.TCPClinet;
+import com.znvoid.demo.net.TCPServer;
+
+import com.znvoid.demo.server.ISevice;
+import com.znvoid.demo.server.TCPSevice;
+
 import com.znvoid.demo.sql.ChatSqlOpenHelp;
 import com.znvoid.demo.util.TCPData;
 import com.znvoid.demo.util.Utils;
@@ -19,12 +23,15 @@ import com.znvoid.demo.util.WifiUtil;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
-
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,30 +60,57 @@ public class ChatFragment extends Fragment implements OnClickListener {
 	private List<String> datas;
 	private Context context;
 	private ProgressDialog progress;
-	
+
 	private String myIP;
 	private String clientIP = "机器人";
 	private ChatSqlOpenHelp sqlOpenHelp;
 	private SharedPreferences sharedPreferences;
-	private TCPServerThread tcpServerThread;
+	// private TCPServerThread tcpServerThread;
+	private TCPServer tcpServerThread;
 	private TCPClientThread tcpClientThread;
-	Handler mhandler = new Handler() {
+	MyConn conn;
+
+	private final Handler mhandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
-			case TCPServerThread.SERVER_RECEIVED_MESSAGE:
-
-				Chat chat = TCPData.getChat((String) msg.obj);
-				if (chat != null) {
-					adapt.add(chat);
-					sqlOpenHelp.add(chat);
+			// case TCPServer.SERVER_RECEIVED_MESSAGE:
+			//
+			// Chat chat = TCPData.getChat((String) msg.obj);
+			// System.out.println(chat.getTime());
+			// if (chat != null) {
+			// String cIp = chat.getIp();
+			// adapt.add(chat);
+			// sqlOpenHelp.add(chat);
+			//
+			// if (!datas.contains(cIp)) {
+			// datas.add(datas.size() - 1, cIp);
+			// spinerAdapter.notifyDataSetChanged();
+			// spinner.setSelection(datas.size() - 2);
+			//
+			// }
+			//
+			// }
+			//
+			// break;
+			// case TCPServer.SERVER_SEND_FAIL:
+			//
+			// break;
+			// case TCPServer.SERVER_STOP:// tcp服务以外停止
+			// // if (tcpServerThread!=null) {
+			// // tcpServerThread.start();
+			// // }else {
+			// // tcpServerThread=new TCPServer(context, mhandler);
+			// // tcpServerThread.start();
+			// // }
+			// break;
+			case TCPSevice.TCPSEVICE_RECEIVE:
+				Chat chat = (Chat) msg.obj;
+				adapt.add(chat);
+				if (!datas.contains(chat.getIp())) {
+					 datas.add(datas.size() - 1, chat.getIp());
+					 spinerAdapter.notifyDataSetChanged();
+					 spinner.setSelection(datas.size() - 2);
 				}
-
-				break;
-			case TCPServerThread.SERVER_SEND_FAIL:
-
-				break;
-			case TCPServerThread.SERVER_SEND_SUCCEED:
-
 				break;
 			case TCPClientThread.CLIENT_RECEIVED_MESSAGE:
 				Chat chat_cr = TCPData.getChat((String) msg.obj);
@@ -86,7 +120,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 				}
 				break;
 			case TCPClientThread.CLIENT_SEND_FAIL:
-				Log.e("Light", "22222发送失败");
+				Log.e("Light", "发送失败");
 				Toast.makeText(context, "发送失败！", Toast.LENGTH_SHORT).show();
 				break;
 			case TCPClientThread.CLIENT_SEND_SUCCSSED:
@@ -105,7 +139,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 				Toast.makeText(context, "连接服务器失败！发送失败", Toast.LENGTH_SHORT).show();
 				break;
 			case TCPClientThread.CLIENT_CONN_SUCC:
-				//Toast.makeText(context, "连接成功！", Toast.LENGTH_SHORT).show();
+				// Toast.makeText(context, "连接成功！", Toast.LENGTH_SHORT).show();
 				break;
 			case SearchThread.SEARCH_FINSH:
 				if (progress != null) {
@@ -124,16 +158,19 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		};
 
 	};
+	private Intent intent;
+	private TCPClinet clinet;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+
 		super.onCreate(savedInstanceState);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+
 		context = getActivity();
 
 		View view = inflater.inflate(R.layout.chatframgment, null);
@@ -143,8 +180,15 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		myIP = wifiutil.getIP();
 
 		// 创建tcpsServer
-		tcpServerThread = new TCPServerThread(context,mhandler);
-		tcpServerThread.start();
+		// tcpServerThread = new TCPServerThread(context,mhandler);
+
+		// tcpServerThread = new TCPServer(context,mhandler);
+		// tcpServerThread.start();
+		intent = new Intent(context, TCPSevice.class);
+		conn = new MyConn();
+
+		context.bindService(intent, conn, context.BIND_AUTO_CREATE);
+
 		if (null == progress) {
 			progress = new ProgressDialog(context);
 		}
@@ -166,17 +210,12 @@ public class ChatFragment extends Fragment implements OnClickListener {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 
-				if (clientIP != spinerAdapter.getItem(pos)) {
-					clientIP = spinerAdapter.getItem(pos);
-
-				}
 				if (pos == spinerAdapter.getCount() - 1) {
 					new SearchThread(mhandler).start();
 					progress.setTitle("正在刷新中...");
 					progress.show();
 
 				}
-				
 
 			}
 
@@ -198,7 +237,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
+
 		switch (v.getId()) {
 		case R.id.sendButton:// 发送按钮 事件
 
@@ -206,27 +245,36 @@ public class ChatFragment extends Fragment implements OnClickListener {
 
 				break;
 			}
+
 			Chat item;
-			
-			if (clientIP.matches(".+\\..+\\..+\\..+")) {	
+			clientIP = (String) spinner.getSelectedItem();
+			if (clientIP.matches(".+\\..+\\..+\\..+")) {
 				item = new Chat(sharedPreferences.getString("author", myIP),
 						messageInputEdi.getText().toString().trim(), 0, sharedPreferences.getString("head", "head_1"),
-						myIP,Utils.getSysTime());
+						myIP, Utils.getSysTime());
 				tcpClientThread = new TCPClientThread(mhandler, clientIP, TCPData.getMsg(item));
 				tcpClientThread.start();
+//				if (clinet==null) {
+//					clinet = new TCPClinet(mhandler);
+//					clinet.start();
+//				}
+//				clinet.sendMessage(clientIP,  TCPData.getMsg(item));
+				
+				
 
 			} else if (clientIP.equals("我")) {
 
 				item = new Chat(sharedPreferences.getString("author", myIP),
 						messageInputEdi.getText().toString().trim(), 0, sharedPreferences.getString("head", "head_1"),
-						clientIP,Utils.getSysTime());
+						clientIP, Utils.getSysTime());
 				adapt.add(item);
 
 				sqlOpenHelp.add(item);
 			} else {
-				item = new Chat(sharedPreferences.getString("other", "机器人"), messageInputEdi.getText().toString().trim(),
-						1, sharedPreferences.getString("head_other", "head_1"), clientIP,Utils.getSysTime());
-				
+				item = new Chat(sharedPreferences.getString("other", "机器人"),
+						messageInputEdi.getText().toString().trim(), 1,
+						sharedPreferences.getString("head_other", "head_1"), clientIP, Utils.getSysTime());
+
 				adapt.add(item);
 
 				sqlOpenHelp.add(item);
@@ -235,10 +283,33 @@ public class ChatFragment extends Fragment implements OnClickListener {
 			messageInputEdi.setText("");
 
 			break;
-		
-		
+
+		}
+
+	}
+
+	class MyConn implements ServiceConnection {
+
+		// 绑定一个服务成功的时候 调用 onServiceConnected
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			ISevice iService = (ISevice) service;
+			if (iService != null) {
+
+				iService.setHandlerr(mhandler);
+			}
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+
 		}
 	}
 
-
+	
+@Override
+public void onDestroy() {
+	context.unbindService(conn);
+	super.onDestroy();
+}
 }

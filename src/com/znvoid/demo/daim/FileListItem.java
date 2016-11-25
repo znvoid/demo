@@ -1,11 +1,6 @@
 package com.znvoid.demo.daim;
 
-/**
- * title:文件列表项的数据
- * 
- * @author zzj
- * @date 2014-7-26
- */
+
 public class FileListItem implements Comparable<FileListItem> {
 
 	public String fileName = "";

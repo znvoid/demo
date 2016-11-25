@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,6 +30,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -37,6 +39,7 @@ public class AccountFragm extends Fragment implements OnClickListener {
 	private CircleImageView cView;
 
 	private EditText dText;
+	private TextView tv;
 	
 	private Button button;
 	private GridView gridView;
@@ -56,6 +59,7 @@ public class AccountFragm extends Fragment implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
+		
 		super.onCreate(savedInstanceState);
 	}
 
@@ -78,19 +82,21 @@ public class AccountFragm extends Fragment implements OnClickListener {
 
 		button=(Button) view.findViewById(R.id.account_bt_save);
 		button.setOnClickListener(this);
-		
+		tv=(TextView) view.findViewById(R.id.account_tv1);
 		mSwitch=(Switch) view.findViewById(R.id.account_switch);
 		mSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (!isChecked) {
+					tv.setText("人物头像及昵称");
 					head=sharedPreferences.getString("head", "head_1");
 					dText.setText(sharedPreferences.getString("author", mIP));
 					
 				}else {
 					head=sharedPreferences.getString("head_other", "head_1");
 					dText.setText(sharedPreferences.getString("other", "机器人"));
+					tv.setText("机器人头像及昵称");
 				}
 				cView.setImageBitmap(Utils.getRes(context,head));
 			}
