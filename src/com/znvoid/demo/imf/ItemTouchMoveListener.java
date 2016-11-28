@@ -1,5 +1,6 @@
 package com.znvoid.demo.imf;
 
+import android.view.View;
 
 public interface ItemTouchMoveListener {
 	

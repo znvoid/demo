@@ -18,5 +18,9 @@
         <item name="colorPrimary">@color/accent_material_dark</item>
         <item name="colorPrimaryDark">@color/accent_material_light</item>
     </style>
+    <style name="MyButton" parent="Theme.AppCompat.Light">
+        
+        <item name="colorControlHighlight">@color/pink</item>
+    </style>
 
 </resources>

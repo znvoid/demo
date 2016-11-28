@@ -12,7 +12,11 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
- 
+
+import com.znvoid.demo.daim.Contact;
+import com.znvoid.demo.daim.RequestHead;
+import com.znvoid.demo.util.TCPData;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -27,7 +31,7 @@ public class TCPClientThread extends Thread {
 	public static final int CLIENT_CONN_FIAL=0X2004;
 	public static final int CLIENT_CONN_SUCC=0X2005;
 	
-	private String ip = "192.168.199.189";
+	private String ip ;
     private int port = 12345;
     private String TAG = "socket thread";
     private int timeout = 3000;
@@ -43,6 +47,7 @@ public class TCPClientThread extends Thread {
     Context ctx;
     private String TAG1 = "===Send===";
     SharedPreferences sp;
+	private Contact mContact;
  
     public TCPClientThread(Handler handler,String ip) {
         
@@ -50,11 +55,11 @@ public class TCPClientThread extends Thread {
         this.ip=ip;
         Log.i(TAG, "创建线程socket");
     }
- public TCPClientThread(Handler handler,String ip,String mMsg) {
+ public TCPClientThread(Handler handler,Contact contact) {
         
         this.handler=handler;
-        this.ip=ip;
-        this.mMsg=mMsg;
+        this.ip=contact.getIp();
+        this.mContact=contact;
         Log.i(TAG, "创建线程socket");
     }
  
@@ -84,6 +89,10 @@ public class TCPClientThread extends Thread {
             
             Log.i(TAG, "输入输出流获取成功");
             isRun=true;
+            RequestHead requestHead=new RequestHead();
+            requestHead.setheadParam("Content-Type", mContact.getMsgType());
+            mMsg= TCPData.makeSendDate(requestHead, mContact);
+            
             if (mMsg!=null) {
             	Send( mMsg);
             	close();
@@ -117,16 +126,17 @@ public class TCPClientThread extends Thread {
             try {
                 if (client != null) {
                     Log.i(TAG, "2.检测数据");
+                  StringBuffer stringBuffer=  new StringBuffer();
+                    
                     while ((line = in.readLine()) != null) {
-                        Log.i(TAG, "3.getdata" + line + " len=" + line.length());
-                        Log.i(TAG, "4.start set Message");
-                        Message msg = handler.obtainMessage();
-                        msg.what=CLIENT_RECEIVED_MESSAGE;
-                        msg.obj = line;
-                        handler.sendMessage(msg);// 结果返回给UI处理
-                        Log.i(TAG1, "5.send to handler");
+                    	stringBuffer.append(line);
+                      
                     }
- 
+                    Message msg = handler.obtainMessage();
+                    msg.what=CLIENT_RECEIVED_MESSAGE;
+                    msg.obj = stringBuffer.toString();
+                    handler.sendMessage(msg);// 结果返回给UI处理
+                    Log.i(TAG1, "5.send to handler");
                 } else {
                     Log.i(TAG, "没有可用连接");
                    // conn();
@@ -169,6 +179,11 @@ public class TCPClientThread extends Thread {
             }
  
         } catch (Exception e) {
+        	 Log.i(TAG, "client 不存在");
+             Message msg = handler.obtainMessage();
+             msg.obj = mess;
+             msg.what = CLIENT_SEND_FAIL;
+             handler.sendMessage(msg);
            Log.i(TAG1, "send error");
             e.printStackTrace();
         } finally {

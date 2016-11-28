@@ -3,20 +3,21 @@ package com.znvoid.demo.sql;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.IpPrefix;
 
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
 	public MySQLiteOpenHelper(Context context) {
-		super(context, "chatdata.db", null, 1);
+		super(context, "msgdata.db", null, 1);
 
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(
-				"CREATE TABLE IF NOT EXISTS chatdata (chatid integer primary key autoincrement, Contact varchar(20), message TEXT,direction INT,time TEXT)");
+				"CREATE TABLE IF NOT EXISTS messageData (msgid integer primary key autoincrement, contact varchar(40), message TEXT,time TEXT,direction INT,type varchar(20))");
 		db.execSQL(
-				"CREATE TABLE IF NOT EXISTS chatContacts (Contactsid integer primary key autoincrement, Contact varchar(40),name varchar(20),head varchar(20),lastMsg TEXT");
+				"CREATE TABLE IF NOT EXISTS chatContacts (Contactsid integer primary key autoincrement, contact varchar(40),name varchar(20),head varchar(20),ip TEXT)");
 
 	}
 

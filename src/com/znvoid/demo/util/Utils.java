@@ -9,12 +9,13 @@ import java.util.Date;
 import java.util.List;
 
 import com.znvoid.demo.daim.ClientScanResultSO;
-import com.znvoid.demo.sql.ChatSqlOpenHelp;
+import com.znvoid.demo.imf.DialogOnClick;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -89,7 +90,7 @@ public class Utils {
 		return result;
 	}
 	public static String getSysTime() {
-		SimpleDateFormat    formatter    =   new    SimpleDateFormat    ("  yyyy年MM月dd日    HH:mm:ss  ");       
+		SimpleDateFormat    formatter    =   new    SimpleDateFormat    ("yyyy年MM月dd日    HH:mm:ss");       
 		Date    curDate    =   new    Date(System.currentTimeMillis());//获取当前时间       
 		String    str    =    formatter.format(curDate);
 		return str;
@@ -102,7 +103,7 @@ public class Utils {
 		builder.setMessage("确认删除吗？");
 
 		builder.setTitle("提示");
-
+		
 		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
 
 			@Override
@@ -123,6 +124,35 @@ public class Utils {
 			}
 		});
 
+		builder.create().show();
+	}
+	public static void showDialog(final Context context,String Message,final int eventid ,final DialogOnClick Listener) {
+		
+		AlertDialog.Builder builder = new Builder(context);
+		builder.setMessage(Message);
+		
+		builder.setTitle("提示");
+		
+		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+				Listener.onClick(eventid);
+				dialog.dismiss();
+				
+			}
+		});
+		
+		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+				dialog.dismiss();
+			}
+		});
+		
 		builder.create().show();
 	}
 	public static String getId(Context context) {
@@ -149,5 +179,26 @@ public class Utils {
 		
 		
 		
+	}
+	
+	public static String getName(Context context) {
+		SharedPreferences sp=context.getSharedPreferences("configs",Context. MODE_PRIVATE);
+		
+		
+		return sp.getString("author", getId(context));
+	}
+	public static String getOtherName(Context context) {
+		SharedPreferences sp=context.getSharedPreferences("configs",Context. MODE_PRIVATE);
+		
+		
+		return sp.getString("other", "机器人");
+	}
+	public static String getHead(Context context) {
+		SharedPreferences sp=context.getSharedPreferences("configs",Context. MODE_PRIVATE);
+		return sp.getString("head", "head_1");
+	}
+	public static String getOtherHead(Context context) {
+		SharedPreferences sp=context.getSharedPreferences("configs",Context. MODE_PRIVATE);
+		return sp.getString("head_other", "head_1");
 	}
 }

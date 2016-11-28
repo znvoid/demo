@@ -5,7 +5,8 @@ import java.util.List;
 
 import com.znvoid.demo.R;
 import com.znvoid.demo.daim.Chat;
-import com.znvoid.demo.sql.ChatSqlOpenHelp;
+import com.znvoid.demo.sql.MsgSQL;
+import com.znvoid.demo.util.Utils;
 import com.znvoid.demo.view.CircleImageView;
 
 import android.app.AlertDialog;
@@ -25,13 +26,13 @@ import android.widget.TextView;
 public class MyChatAapter extends BaseAdapter {
 	private int delposition = -1;
 	private Context context;
-
+	private String mId;
 	private List<Chat> datalist = new ArrayList<Chat>();
-
-	public MyChatAapter(Context context) {
+	private MsgSQL msgSQL;
+	public MyChatAapter(Context context,String id) {
 		super();
 		this.context = context;
-
+		mId=id;
 	}
 
 	// 增加条目
@@ -94,11 +95,11 @@ public class MyChatAapter extends BaseAdapter {
 
 		if (convertView == null || (holder = (ViewHolder) convertView.getTag()).flag != chat.getDirection()) {
 			holder = new ViewHolder();
-			if (chat.getDirection() == Chat.MESSAGE_RECEIVE) {
-				holder.flag = Chat.MESSAGE_RECEIVE;
+			if (chat.getDirection() == Chat.MESSAGE_SEND) {
+				holder.flag = Chat.MESSAGE_SEND;
 				convertView = LayoutInflater.from(context).inflate(R.layout.chat_message_own, null);
 			} else {
-				holder.flag = Chat.MESSAGE_SEND;
+				holder.flag = Chat.MESSAGE_RECEIVE;
 				convertView = LayoutInflater.from(context).inflate(R.layout.chat_message_other, null);
 			}
 			holder.text = (TextView) convertView.findViewById(R.id.message);
@@ -123,9 +124,16 @@ public class MyChatAapter extends BaseAdapter {
 				return true;
 			}
 		});
-		holder.tvauthor.setText(chat.getAuthor() + "(" + chat.getIp() + ")");
+		if (holder.flag==0) {
+			holder.circleImageView.setImageBitmap(getRes(Utils.getHead(context)));
+			holder.tvauthor.setText(Utils.getName(context));
+		}else {
+			holder.tvauthor.setText(chat.getAuthor() );
+			holder.circleImageView.setImageBitmap(getRes(chat.getHead()));
+		}
+		
 		holder.tvtime.setText(chat.getTime());
-		holder.circleImageView.setImageBitmap(getRes(chat.getHead()));
+		
 
 		return convertView;
 	}
@@ -157,8 +165,7 @@ public class MyChatAapter extends BaseAdapter {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-
-				new ChatSqlOpenHelp(context).delete(getItem(delposition));
+				msgSQL.delete(mId, getItem(delposition));
 				remove(delposition);
 
 				dialog.dismiss();

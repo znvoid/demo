@@ -4,11 +4,14 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:background="#fff"
+    
     android:paddingLeft="5dip"
     android:paddingRight="5dip"
     android:paddingTop="8dip"
-    android:paddingBottom="8dip" >
+    android:paddingBottom="8dip"
+    android:clickable="true"
+   android:background="@drawable/contacts_item_bg" >
+   <!-- android:background="#fff" -->
 
     <ImageView
         android:id="@+id/contactsItem_iv_head"

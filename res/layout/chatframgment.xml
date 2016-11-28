@@ -39,7 +39,8 @@
             android:id="@+id/sendButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_send" />
+            android:src="@android:drawable/ic_menu_send"
+             style="@style/Widget.AppCompat.Button.Borderless" />
     </LinearLayout>
 
 </RelativeLayout>

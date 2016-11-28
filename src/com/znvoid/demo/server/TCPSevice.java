@@ -13,9 +13,12 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 
+import org.json.JSONObject;
 
 import com.znvoid.demo.daim.Chat;
-import com.znvoid.demo.sql.ChatSqlOpenHelp;
+import com.znvoid.demo.daim.Contact;
+import com.znvoid.demo.daim.RequestHead;
+import com.znvoid.demo.sql.MsgSQL;
 import com.znvoid.demo.util.TCPData;
 
 import android.app.Service;
@@ -24,9 +27,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.JsonReader;
 import android.util.Log;
 
 public class TCPSevice extends Service {
@@ -40,12 +46,12 @@ public class TCPSevice extends Service {
 	ServerSocket serverSocket;
 	Selector selector;
 
-	private ChatSqlOpenHelp sqlOpenHelp;
+	private MsgSQL sqlOpenHelp;
 	@Override
 	public void onCreate() {
 		Log.e("TCPServer", "onCreate");
 		context=getApplicationContext();
-		sqlOpenHelp=new ChatSqlOpenHelp(context);
+		sqlOpenHelp=new MsgSQL(context);
 		new TCPThread().start();
 		super.onCreate();
 	}
@@ -75,12 +81,13 @@ public class TCPSevice extends Service {
 	}
 
 	
-	@Override
-	public void unbindService(ServiceConnection conn) {
-		Log.e("TCPServer", "unbindService");
-		super.unbindService(conn);
-	}
 	
+	@Override
+	public boolean onUnbind(Intent intent) {
+		Log.e("TCPServer", "unbindService");
+		
+		return super.onUnbind(intent);
+	}
 	class MyIBiner  extends Binder implements  ISevice{
 
 		@Override
@@ -121,7 +128,7 @@ public class TCPSevice extends Service {
 
 		
 
-		private ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+		private ByteBuffer buffer = ByteBuffer.allocateDirect(1024*1024);
 
 	
 
@@ -221,32 +228,42 @@ public class TCPSevice extends Service {
 
 			while ((count = socketChannel.read(buffer)) > 0) {
 				buffer.flip(); // Make buffer readable
-
+				if (buffer.hasRemaining()) {
+					
+				
 //				String re = Charset.forName("gbk").decode(buffer).toString();
 				 String re=Charset.forName("UTF-8").decode(buffer).toString();
-				if (CHATTEST.equals(re)) {
+				 re=re.replace("\\", "");
+				 
+				 
+				 Log.e(TAG, "接收到" + re);
+			RequestHead requestHead=TCPData.parseJsonHead(re);
+			
+			Contact contact=TCPData.parseJsonConact(re);
+				 if (requestHead==null||contact==null) {
+						break;
+				}
 					
-					socketChannel.write(ByteBuffer.wrap(TCPData.creatTestMessage(context).getBytes()));
-					key.cancel();
-					
-				}else {
-					Chat chat = TCPData.getChat(re);
-					Log.e(TAG, re);
-					if (chat!=null) {
-						sqlOpenHelp.add(chat);
-						if (mHandler!=null) {
-							
-							Message msg = mHandler.obtainMessage();
-							msg.what = TCPSEVICE_RECEIVE;
-							msg.obj = chat;
-							mHandler.sendMessage(msg);
-						}
+				 
+				if (requestHead.getheadParam("Content-Type").endsWith("message\test")) {
+					 Log.e(TAG, "接收到ok" );
+					if (contact != null) {
+						sqlOpenHelp.updataContact(contact);
+						socketChannel.write(ByteBuffer.wrap(TCPData.creatTestMessage(context).getBytes()));
+						key.cancel();
 					}
 					
 					
+				}else {
+					contact.setDirection(1);
+					sqlOpenHelp.add(contact);
+					
+					//发送广播
+					sendb(contact);
+					
 				}
 				
-
+				}
 				buffer.clear(); // Empty buffer
 
 			}
@@ -259,5 +276,16 @@ public class TCPSevice extends Service {
 
 		
 	 }
-	
+	/**
+	 * 发送广播
+	 * @param contact
+	 */
+	 public void sendb(Contact contact) {
+		 Intent intent = new Intent("com.zn.demo.CHATMESSAGE");
+		   Bundle mBundle = new Bundle();    
+	        mBundle.putSerializable("message",contact);    
+	        intent.putExtras(mBundle);
+	       LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	        
+	}
 }

@@ -50,19 +50,21 @@ public class NetFragment extends Fragment {
 				mImageView_refresh.clearAnimation();
 				break;
 			case MSG_TIMEOUT:
-				new SearchThread(handle).start();
+//				new SearchThread(handle).start();
+				adapt.setdata(Utils.getClientList());
+				mImageView_refresh.clearAnimation();
 				break;
 			case SearchThread.SEARCH_TEST:
-				flagrefreshdate=!flagrefreshdate;
-				List<ClientScanResultSO> temp=(List<ClientScanResultSO>) msg.obj;
-				if (temp.size()==0) {
-					adapt.setdata(Utils.getClientList());
-					mImageView_refresh.clearAnimation();
+//				flagrefreshdate=!flagrefreshdate;
+//				List<ClientScanResultSO> temp=(List<ClientScanResultSO>) msg.obj;
+//				if (temp.size()==0) {
+//					adapt.setdata(Utils.getClientList());
+//					mImageView_refresh.clearAnimation();
 					
-					break;
-				}
-				adapt.setdata(Utils.checkClient((temp)));
-				mImageView_refresh.clearAnimation();
+//					break;
+//				}
+//				adapt.setdata(Utils.checkClient((temp)));
+//				mImageView_refresh.clearAnimation();
 				break;
 			default:
 				break;

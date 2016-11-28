@@ -5,14 +5,18 @@ import java.util.List;
 
 import com.znvoid.demo.R;
 import com.znvoid.demo.daim.Contact;
+import com.znvoid.demo.imf.ItemClickListener;
 import com.znvoid.demo.imf.ItemTouchMoveListener;
 import com.znvoid.demo.util.Utils;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,27 +24,46 @@ import android.widget.TextView;
 public class ContactsAdapter extends  Adapter<ContactsAdapter.MyViewHolder> implements ItemTouchMoveListener {
 	private List<Contact> list;
 	private Context context;
-	
-	public ContactsAdapter(List<Contact> list,Context context) {
+	private ItemClickListener listener;
+	public ContactsAdapter(List<Contact> list,Context context,ItemClickListener listener) {
 		this.context=context;
 		this.list=list;
+		this.listener=listener;
 	}
 	
 	
-	class MyViewHolder extends ViewHolder{
+	class MyViewHolder extends ViewHolder implements OnClickListener ,OnLongClickListener{
 
 		private ImageView iv_head;
 		private TextView tv_name;
 		private TextView tv_Msg;
 		private TextView tv_time;
-
+		
 		public MyViewHolder(View itemView) {
 			super(itemView);
+		
 			iv_head = (ImageView)itemView.findViewById(R.id.contactsItem_iv_head);
 			tv_name = (TextView)itemView.findViewById(R.id.contactsItem_tv_name);
 			tv_Msg = (TextView)itemView.findViewById(R.id.contactsItem_tv_lastMsg);
 			tv_time = (TextView)itemView.findViewById(R.id.contactsItem_tv_time);
+			itemView.setOnClickListener(this);
+			itemView.setOnLongClickListener(this);
+			
 		}
+		@Override
+		public void onClick(View v) {
+			
+			listener.itemOnClick(v, getAdapterPosition());
+			
+		}
+		@Override
+		public boolean onLongClick(View v) {
+			listener.itemOnLongClick(v, getAdapterPosition());
+			return true;
+		}
+		
+
+		
 		
 	}
 
@@ -69,16 +92,29 @@ public class ContactsAdapter extends  Adapter<ContactsAdapter.MyViewHolder> impl
 		Contact contact = list.get(position);
 		viewHolder.iv_head.setImageBitmap(Utils.getRes(context, contact.getHead()) );
 		viewHolder.tv_name.setText(contact.getName());
-		viewHolder.tv_Msg.setText(contact.getLastMsg());
-		viewHolder.tv_time.setText(contact.getTime());
+		if (contact.getLastMsg().equals("Null")) {
+			viewHolder.tv_Msg.setText("");
+			viewHolder.tv_time.setText("");
+			
+		}else {
+			viewHolder.tv_Msg.setText(contact.getLastMsg());
+			viewHolder.tv_time.setText(contact.getTime().split("    ")[1]);
+		}
+		
 		
 	}
 
 	@Override
 	public MyViewHolder onCreateViewHolder(ViewGroup parent, int arg1) {
 		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contacts_item, parent, false);
+		
+		
 		return new MyViewHolder(view);
 	}
+
+	
+
+
 
 
 }

@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import com.znvoid.demo.daim.ClientScanResultSO;
+import com.znvoid.demo.daim.Contact;
 import com.znvoid.demo.util.TCPData;
 import com.znvoid.demo.util.Utils;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -28,8 +30,9 @@ public class SearchThread extends Thread {
 	public static final int SEARCH_TEST=0x3004;//测试数据
 	
 	private static List<String> ipStrings=new ArrayList<String>();
-	private static List<ClientScanResultSO> deviceResult=new ArrayList<ClientScanResultSO>();
+	private static List<Contact> deviceResult=new ArrayList<Contact>();
 	private Handler mHandler;
+	private static String message;
 	private	static  Handler pHandler=new Handler(){
 		
 		public void handleMessage(Message msg) {
@@ -40,7 +43,7 @@ public class SearchThread extends Thread {
 						break;
 			
 				case SEARCH_TEST:
-					deviceResult.add(doMsgToClientSRO( (String) msg.obj));
+					deviceResult.add((Contact) msg.obj);
 					
 						break;	
 }
@@ -53,9 +56,10 @@ public class SearchThread extends Thread {
 		
 	};
 	
-	public SearchThread(Handler mHandler) {
+	public SearchThread(String message,Handler mHandler) {
 		super();
 		this.mHandler = mHandler;
+		this.message=message;
 	}
 	private ArrayList<String> getFrArp() {
 		ArrayList<String> datas = new ArrayList<String>();
@@ -81,7 +85,10 @@ public class SearchThread extends Thread {
 	            msg.what = SEARCH_SUCCESS;
 	            msg.obj=ip;
 	            pHandler.sendMessage(msg);
-	            byte[] buffer="CHATMESSAGE V1.0 CHACK".getBytes();
+	            
+	            
+	            
+	            byte[] buffer=message.getBytes();
 	            OutputStream os=client.getOutputStream();
 	            os.write(buffer, 0, buffer.length);
 	            os.flush();
@@ -90,20 +97,23 @@ public class SearchThread extends Thread {
 	            Log.e("Light", "构建输入流完毕");       
 	               byte[] buf=new byte[1024*1024];
 	            int temp=0;
+	            StringBuffer stringBuffer=new StringBuffer();
 	           while ((temp = in.read(buf)) !=-1) {
 	            	Log.e("Light", "收到服务器检查链接结果");
 	            	
 	            	
-	            	String mg=new String(buf, 0,temp);
-	            	Log.e("Light", mg);
-	            	Message rmsg = pHandler.obtainMessage();
-		            rmsg.what = SEARCH_TEST;
-		            rmsg.obj=mg;
-		            pHandler.sendMessage(rmsg);
+	            	stringBuffer.append(new String(buf, 0,temp));
+	            	
 	            	
 	            }
 	            
-	            
+	        Contact contact=   TCPData.parseJsonConact(stringBuffer.toString());
+	           
+	           Log.e("Light", contact.getId());
+           	Message rmsg = pHandler.obtainMessage();
+	            rmsg.what = SEARCH_TEST;
+	            rmsg.obj=contact;
+	            pHandler.sendMessage(rmsg);
 	            client.close();
 	            
 	        } catch (Exception e) {

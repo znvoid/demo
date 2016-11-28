@@ -2,8 +2,8 @@ package com.znvoid.demo.daim;
 
 
 public class Chat {
-	public static final int MESSAGE_RECEIVE = 0;
-	 public static final int MESSAGE_SEND = 1;
+	public static final int MESSAGE_RECEIVE = 1;
+	 public static final int MESSAGE_SEND = 0;
     
     private String author;
     private String message;

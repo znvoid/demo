@@ -33,7 +33,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+/**
+ * ’ÀªßΩÁ√Ê
+ * @author zn
+ *
+ */
 public class AccountFragm extends Fragment implements OnClickListener {
 	private Context context;
 	private CircleImageView cView;
@@ -47,7 +51,7 @@ public class AccountFragm extends Fragment implements OnClickListener {
 	private String head;
 	private Switch mSwitch;
 	
-
+	
 	
 	
 	private SharedPreferences sharedPreferences;
@@ -187,4 +191,5 @@ public class AccountFragm extends Fragment implements OnClickListener {
 		}
 		
 	}
+	
 }
