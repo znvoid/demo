@@ -42,7 +42,7 @@ public class Contact implements Serializable {
 
 	public Contact(String id, String name, String head, String lastMsg, String time, String ip) {
 		
-		this(id, name, head, lastMsg, time, ip, "message/String", 0);
+		this(id, name, head, lastMsg, time, ip, "message/string", 0);
 		
 	}
 

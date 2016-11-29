@@ -32,6 +32,7 @@ public class MyChatAapter extends BaseAdapter {
 	public MyChatAapter(Context context,String id) {
 		super();
 		this.context = context;
+		msgSQL=new MsgSQL(context);
 		mId=id;
 	}
 

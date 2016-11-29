@@ -53,8 +53,10 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 	            if (intent.getAction() == MESSAGE_NOTIFICATION)
 	            {
 	                Contact contact = intent.getParcelableExtra("message");
-
-	                handleResult(contact);
+	                if (contact!=null) {
+	                	  handleResult(contact);
+					}
+	              
 
 	            }
 
@@ -134,7 +136,7 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 		  
 		Bundle bundle = new Bundle();  
 		bundle.putSerializable("contact", list.get(position));  
-		
+		bundle.putBoolean("conned", false);
 		
 		
 		

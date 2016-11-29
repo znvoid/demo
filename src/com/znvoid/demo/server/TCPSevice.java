@@ -238,14 +238,13 @@ public class TCPSevice extends Service {
 				 
 				 Log.e(TAG, "接收到" + re);
 			RequestHead requestHead=TCPData.parseJsonHead(re);
-			
-			Contact contact=TCPData.parseJsonConact(re);
-				 if (requestHead==null||contact==null) {
+			 if (requestHead==null) {
 						break;
 				}
-					
+			Contact contact=TCPData.parseJsonConact(re);
+				
 				 
-				if (requestHead.getheadParam("Content-Type").endsWith("message\test")) {
+				if (requestHead.getheadParam("Content-Type").endsWith("message/test")) {
 					 Log.e(TAG, "接收到ok" );
 					if (contact != null) {
 						sqlOpenHelp.updataContact(contact);
@@ -254,12 +253,18 @@ public class TCPSevice extends Service {
 					}
 					
 					
-				}else {
+				}else if (requestHead.getheadParam("Content-Type").endsWith("message/string")) {
+					
 					contact.setDirection(1);
 					sqlOpenHelp.add(contact);
 					
 					//发送广播
 					sendb(contact);
+					
+				} {
+					
+					
+					
 					
 				}
 				

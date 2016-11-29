@@ -6,6 +6,8 @@ import com.znvoid.demo.fragment.AccountFragm;
 import com.znvoid.demo.fragment.ChatFragment;
 import com.znvoid.demo.fragment.ContactsFragment;
 import com.znvoid.demo.fragment.DeskFragment;
+import com.znvoid.demo.fragment.LinkFrangemt;
+import com.znvoid.demo.fragment.NetBackupFragment;
 import com.znvoid.demo.fragment.NetFragment;
 import com.znvoid.demo.fragment.WifilistFragment;
 import com.znvoid.demo.server.TCPSevice;
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
 	private String mIP;
 	private WifiUtil wifiUtil;
-	private Fragment mContent=new Fragment() ;// 当前Fragment
+	private  Fragment mContent=new Fragment() ;// 当前Fragment
 	private Toolbar toolbar;
 	SearchView searchView;
 
@@ -207,7 +209,29 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
 	public void switchContent(Fragment fragment) {
 		if (mContent != fragment) {
-
+			
+			if (mContent==contactsFragment) {
+				LinkFrangemt linkFrangemt=(LinkFrangemt) getFragmentManager().findFragmentByTag(LinkFrangemt.class.getName());
+				NetBackupFragment netBackupFragment=(NetBackupFragment) getFragmentManager().findFragmentByTag(NetBackupFragment.class.getName());
+				
+				if (linkFrangemt!=null) {
+					if (!linkFrangemt.isHidden()) {
+						mContent=linkFrangemt;
+					}
+					
+				}
+				if (netBackupFragment!=null) {
+					if (!netBackupFragment.isHidden()) {
+						mContent=netBackupFragment;
+					}
+				}
+				
+				
+			}
+			
+			
+			
+			
 			if (!fragment.isAdded()) {
 				getFragmentManager().beginTransaction().hide(mContent)
 						.add(R.id.mian_frame, fragment, fragment.getClass().getName()).commit();

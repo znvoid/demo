@@ -9,7 +9,7 @@
     android:paddingRight="5dip"
     android:paddingTop="8dip"
     android:paddingBottom="8dip"
-    android:clickable="true"
+    android:onClick="true"
    android:background="@drawable/contacts_item_bg" >
    <!-- android:background="#fff" -->
 

@@ -72,8 +72,9 @@ public  void conn(String ip) {
         	
         	
         }
-        
-    Contact contact=   TCPData.parseJsonConact(stringBuffer.toString());
+        String re=stringBuffer.toString();
+        re=re.replace("\\", "");
+    Contact contact=   TCPData.parseJsonConact(re);
        
     if (contact!=null) {
 		Log.e("Light", contact.getId());

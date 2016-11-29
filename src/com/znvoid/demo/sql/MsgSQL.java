@@ -51,9 +51,9 @@ public class MsgSQL extends MySQLiteOpenHelper {
 				cont1.put("contact", contact.getId());
 				cont1.put("name", contact.getName());
 				cont1.put("head", contact.getHead());
-				cont1.put("ip", contact.getDirection());
+				cont1.put("ip", contact.getIp());
 
-				db.update("chatContacts", cont, "contact=?", new String[] { contact.getId() });
+				db.update("chatContacts", cont1, "contact=?", new String[] { contact.getId() });
 
 			} else {
 
@@ -61,7 +61,7 @@ public class MsgSQL extends MySQLiteOpenHelper {
 				cont1.put("contact", contact.getId());
 				cont1.put("name", contact.getName());
 				cont1.put("head", contact.getHead());
-				cont1.put("ip", contact.getDirection());
+				cont1.put("ip", contact.getIp());
 
 				db.insert("chatContacts", null, cont1);
 

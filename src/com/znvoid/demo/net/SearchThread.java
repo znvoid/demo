@@ -8,6 +8,9 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -33,6 +36,7 @@ public class SearchThread extends Thread {
 	private static List<Contact> deviceResult=new ArrayList<Contact>();
 	private Handler mHandler;
 	private static String message;
+	
 	private	static  Handler pHandler=new Handler(){
 		
 		public void handleMessage(Message msg) {
@@ -97,26 +101,50 @@ public class SearchThread extends Thread {
 	            Log.e("Light", "构建输入流完毕");       
 	               byte[] buf=new byte[1024*1024];
 	            int temp=0;
-	            StringBuffer stringBuffer=new StringBuffer();
+//	            StringBuffer stringBuffer=new StringBuffer();
+	            
+//	            SocketChannel sc=client.getChannel();
+//	            
+//	            
+//	            buf.clear();
+//	            int count; ;
+//	            sc.write(buf);
+//	            StringBuffer stringBuffer=new StringBuffer();
+//	            while ((count = sc.read(buf)) > 0) {
+//	            	buf.flip(); // Make buffer readable
+//					if (buf.hasRemaining()) { 
+//						stringBuffer.append(Charset.forName("UTF-8").decode(buf).toString());
+//						
+//					}
+//					buf.clear();
+//	            }
+	            String re="";
 	           while ((temp = in.read(buf)) !=-1) {
-	            	Log.e("Light", "收到服务器检查链接结果");
 	            	
+	        	   Log.e("Light", "收到服务器检查链接结果");
 	            	
-	            	stringBuffer.append(new String(buf, 0,temp));
-	            	
+	        	   re=new String(buf, 0,temp);
+	        	   re=re.replace("\\", "");
+	        	   Log.e("Light", re);
+	        		  Contact contact=   TCPData.parseJsonConact(re);
+	      	        
+	        		 
+	   	           Log.e("Light", contact.getId());
+	              	Message rmsg = pHandler.obtainMessage();
+	   	            rmsg.what = SEARCH_TEST;
+	   	            rmsg.obj=contact;
+	   	            pHandler.sendMessage(rmsg);
+	   	            client.close();
 	            	
 	            }
 	            
-	        Contact contact=   TCPData.parseJsonConact(stringBuffer.toString());
 	           
-	           Log.e("Light", contact.getId());
-           	Message rmsg = pHandler.obtainMessage();
-	            rmsg.what = SEARCH_TEST;
-	            rmsg.obj=contact;
-	            pHandler.sendMessage(rmsg);
-	            client.close();
+//				 re=re.replace("\\", "");
+				  Log.e("Light", re);
+			
 	            
 	        } catch (Exception e) {
+	        	
 	        	 Log.e("Light", "连接失败"+ip);
 	        	Message msg = pHandler.obtainMessage();
 	            msg.what = SEARCH_FAIL;
@@ -145,12 +173,12 @@ public class SearchThread extends Thread {
 			Log.e("Light1", "查找完成");
 			Message msg = mHandler.obtainMessage();
             msg.what = SEARCH_FINSH;
-            msg.obj=ipStrings;
+            msg.obj=deviceResult;
             mHandler.sendMessage(msg);
-            Message msgt = mHandler.obtainMessage();
-            msgt.what = SEARCH_TEST;
-            msgt.obj=deviceResult;
-            mHandler.sendMessage(msgt);
+//            Message msgt = mHandler.obtainMessage();
+//            msgt.what = SEARCH_TEST;
+//            msgt.obj=ipStrings;
+//            mHandler.sendMessage(msgt);
 			
 		} catch (InterruptedException e) {
 			

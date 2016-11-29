@@ -84,6 +84,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction() == MESSAGE_NOTIFICATION) {
 				Contact contact = intent.getParcelableExtra("message");
+				
 				if (mContact.equals(contact.getId())) {
 					handleResult(contact);
 				}
@@ -121,7 +122,10 @@ public class ChatFragment extends Fragment implements OnClickListener {
 			case TCPClientThread.CLIENT_SEND_SUCCSSED:
 
 				Contact contact = (Contact) msg.obj;
-
+				contact.setId(mContact.getId());
+				contact.setHead(mContact.getHead());
+				contact.setIp(mContact.getIp());
+				contact.setName(mContact.getName());
 				Chat chat1 = TCPData.contact2Chat(contact);
 				if (chat1 != null) {
 					// chat1.setDirection(0);
@@ -202,8 +206,10 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		Bundle bundle = getArguments();
 		if (bundle != null) {
 			mContact = (Contact) bundle.get("contact");
-
+			System.out.println("12--------"+mContact.getIp());
+		canLink=	bundle.getBoolean("conned",false);
 		}
+		
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(MESSAGE_NOTIFICATION);
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(messageReceiver, filter);
@@ -284,7 +290,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		listView.setAdapter(adapt);
 
 		sendButton.setOnClickListener(this);
-		if (!myid.equals(mContact.getId())) {
+		if (!myid.equals(mContact.getId())&&!canLink) {
 			linkService();
 		}
 
@@ -302,7 +308,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 
 		switch (v.getId()) {
 		case R.id.sendButton:// 发送按钮 事件
-			
+			Log.e("TCPServer", myid+"-------"+myIP);
 			if (myid.equals(mContact.getId())) {
 				String tString=messageInputEdi.getText().toString().trim();
 				Contact contact1=makeSendMsg();
@@ -333,7 +339,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 					break;
 				}
 				
-				new TCPClientThread(mhandler, makeSendMsg()).start();
+				new TCPClientThread(mhandler, makeSendMsg(),mContact.getIp()).start();
 				messageInputEdi.setText("");
 			}
 			

@@ -60,7 +60,7 @@ public class LinkFrangemt extends Fragment implements OnClickListener, OnRefresh
 				new SearchThread( TCPData.creatTestMessage(context),handle).start();
 				
 				break;
-			case SearchThread.SEARCH_TEST:
+			case SearchThread.SEARCH_FINSH:
 				isfresh=false;
 				List<Contact>list=(List<Contact>) msg.obj;
 				mSwipRefresh.setRefreshing(false);
@@ -102,14 +102,20 @@ public class LinkFrangemt extends Fragment implements OnClickListener, OnRefresh
 			@Override
 			protected void initlistcell(int position, View listcellview, ViewGroup parent) {
 				
-				Contact client=getItem(position);
+				final Contact client=getItem(position);
 				TextView tv_id = (TextView) listcellview.findViewById(R.id.contactsItem_tv_lastMsg);
 				TextView tv_name = (TextView) listcellview.findViewById(R.id.contactsItem_tv_name);
 				TextView tv_ip = (TextView) listcellview.findViewById(R.id.contactsItem_tv_time);
 				ImageView im_head = (ImageView) listcellview.findViewById(R.id.contactsItem_iv_head);
 				
-				
-				
+				listcellview.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						
+						doCick(client);
+					}
+				});
 				
 				tv_ip.setText(client.getIp());
 				tv_name.setText(client.getName());
@@ -220,6 +226,7 @@ public class LinkFrangemt extends Fragment implements OnClickListener, OnRefresh
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		System.out.println("1111111111------");
 		Contact item = adapt.getItem(position);
 		
 		Bundle bundle = new Bundle();  
@@ -250,5 +257,32 @@ public class LinkFrangemt extends Fragment implements OnClickListener, OnRefresh
 		}
 		
 	}
-
+	public void  doCick(Contact contact) {
+		Bundle bundle = new Bundle();  
+		bundle.putSerializable("contact", contact);   
+		
+		bundle.putBoolean("conned", true);
+		
+		FragmentTransaction transaction = fragmentManager.beginTransaction();
+		ChatFragment chatFragment=(ChatFragment) fragmentManager.findFragmentByTag(ChatFragment.class.getName());
+		if (chatFragment==null) {
+			chatFragment=new ChatFragment();
+			
+		}
+		chatFragment.setArguments(bundle);
+		if (!chatFragment.isAdded()) {
+		
+			transaction.add(R.id.mian_frame, chatFragment,chatFragment.getClass().getName());
+			transaction.hide(this);
+			transaction.addToBackStack(null); 
+			
+			transaction.commit();
+		} else {
+			
+			transaction.show(chatFragment);
+			transaction.hide(this);
+			transaction.addToBackStack(null); 
+			transaction.commit();
+		}
+	}
 }

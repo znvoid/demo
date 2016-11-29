@@ -55,15 +55,15 @@ public class TCPClientThread extends Thread {
         this.ip=ip;
         Log.i(TAG, "创建线程socket");
     }
- public TCPClientThread(Handler handler,Contact contact) {
-        
-        this.handler=handler;
-        this.ip=contact.getIp();
-        this.mContact=contact;
-        Log.i(TAG, "创建线程socket");
-    }
+
  
-    /**
+    public TCPClientThread(Handler mhandler, Contact contact, String ip) {
+    	 this.handler=mhandler;
+         this.ip=ip;
+         this.mContact=contact;
+         Log.i(TAG, "创建线程socket");
+}
+	/**
      * 连接socket服务器
      */
     public void conn() {
@@ -165,7 +165,7 @@ public class TCPClientThread extends Thread {
                 out.flush();
                 Log.i(TAG1, "发送成功");
                 Message msg = handler.obtainMessage();
-                msg.obj = mess;
+                msg.obj = mContact;
                 msg.what = CLIENT_SEND_SUCCSSED;
                 handler.sendMessage(msg);// 结果返回给UI处理
             } else {
