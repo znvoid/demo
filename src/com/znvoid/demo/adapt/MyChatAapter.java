@@ -5,10 +5,12 @@ import java.util.List;
 
 import com.znvoid.demo.R;
 import com.znvoid.demo.daim.Chat;
+import com.znvoid.demo.popup.ShowImagePopup;
 import com.znvoid.demo.sql.MsgSQL;
 import com.znvoid.demo.util.Utils;
 import com.znvoid.demo.view.CircleImageView;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -18,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -29,11 +32,13 @@ public class MyChatAapter extends BaseAdapter {
 	private String mId;
 	private List<Chat> datalist = new ArrayList<Chat>();
 	private MsgSQL msgSQL;
-	public MyChatAapter(Context context,String id) {
+	private ShowImagePopup showImagePopup;
+	public MyChatAapter(Activity context,String id) {
 		super();
 		this.context = context;
 		msgSQL=new MsgSQL(context);
 		mId=id;
+		showImagePopup=new ShowImagePopup(context);
 	}
 
 	// 增加条目
@@ -112,6 +117,19 @@ public class MyChatAapter extends BaseAdapter {
 		}
 		holder.text.setText(chat.getMessage());
 		holder.text.setId(position);
+		
+		holder.text.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				String msgType=datalist.get(v.getId()).getMsgType();
+				if ("flie/picture".equals(msgType)) {
+					showImagePopup.Show(datalist.get(v.getId()).getMessage());
+				}
+				
+			}
+		});
 		holder.text.setOnLongClickListener(new OnLongClickListener() {
 
 			@Override

@@ -19,16 +19,24 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal" >
-
+<!-- 
         <Spinner
             android:id="@+id/spinner1"
             android:layout_width="78dp"
             android:layout_height="40dp"
             android:layout_weight="0.10" />
-
+ -->
+  <ImageButton
+            android:id="@+id/showP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:src="@android:drawable/ic_menu_add"
+             style="@style/Widget.AppCompat.Button.Borderless" />
+ 
+ 
         <EditText
             android:id="@+id/messageInput"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="textShortMessage"
@@ -39,6 +47,7 @@
             android:id="@+id/sendButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:src="@android:drawable/ic_menu_send"
              style="@style/Widget.AppCompat.Button.Borderless" />
     </LinearLayout>

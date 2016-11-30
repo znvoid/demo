@@ -18,7 +18,7 @@ public class Ping {
 		int k = 0;
 		k = hostAddress.lastIndexOf(".");
 		String ss = hostAddress.substring(0, k + 1);
-		for (int i = 1; i <= 254; i++) {
+		for (int i = 2; i <= 254; i++) {
 			// ±éšvËùÓÐ¾ÖÓòÍøIp
 			String iip = ss + i;
 			if (!hostAddress.equals(iip)) {

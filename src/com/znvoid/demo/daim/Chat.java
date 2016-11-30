@@ -12,7 +12,15 @@ public class Chat {
     private String head;
     private String ip;
     private String time;
-   
+   private String msgType="message/string";
+
+	public String getMsgType() {
+	return msgType;
+}
+
+public void setMsgType(String msgType) {
+	this.msgType = msgType;
+}
 
 	public String getTime() {
 		return time;

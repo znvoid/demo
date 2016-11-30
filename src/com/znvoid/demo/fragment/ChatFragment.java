@@ -1,20 +1,23 @@
 package com.znvoid.demo.fragment;
 
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
 
 import com.znvoid.demo.R;
 import com.znvoid.demo.adapt.MyChatAapter;
 import com.znvoid.demo.daim.Chat;
 import com.znvoid.demo.daim.Contact;
+import com.znvoid.demo.daim.ImageBean;
 import com.znvoid.demo.net.LinkThread;
 import com.znvoid.demo.net.Ping;
 import com.znvoid.demo.net.SearchThread;
 import com.znvoid.demo.net.TCPClientThread;
 import com.znvoid.demo.net.TCPClinet;
 import com.znvoid.demo.net.TCPServer;
-
+import com.znvoid.demo.popup.SelectorPopup;
+import com.znvoid.demo.popup.SelectorPopup.CallbackListener;
 import com.znvoid.demo.server.ISevice;
 import com.znvoid.demo.server.TCPSevice;
 
@@ -27,15 +30,19 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,11 +61,12 @@ import android.widget.Spinner;
 
 import android.widget.Toast;
 
-public class ChatFragment extends Fragment implements OnClickListener {
+public class ChatFragment extends Fragment implements OnClickListener, CallbackListener {
 
 	private ListView listView;
 	private Spinner spinner;
 	private ImageButton sendButton;
+	private ImageButton showpButton;
 	private EditText messageInputEdi;
 	private MyChatAapter adapt;
 	private ArrayAdapter<String> spinerAdapter;// spinner的adapt
@@ -169,6 +177,7 @@ public class ChatFragment extends Fragment implements OnClickListener {
 				;
 
 				break;
+				
 			case SearchThread.SEARCH_FINSH:
 				progress.dismiss();
 				List<Contact> list = (List<Contact>) msg.obj;
@@ -192,6 +201,15 @@ public class ChatFragment extends Fragment implements OnClickListener {
 					Toast.makeText(context, "搜索失败，对象不在服务区", Toast.LENGTH_LONG).show();
 				}
 				break;
+				case 0x45:
+					progress.dismiss();
+					if (dataList.isEmpty()) {
+						break;
+					}
+					
+					selectorPopup.show(dataList);
+					
+					break;
 			}
 		};
 
@@ -200,6 +218,8 @@ public class ChatFragment extends Fragment implements OnClickListener {
 	private TCPClinet clinet;
 	private Contact mContact;
 	private boolean isRefesh;
+	private SelectorPopup selectorPopup;
+	private List<ImageBean> dataList=new ArrayList<ImageBean>();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -228,7 +248,8 @@ public class ChatFragment extends Fragment implements OnClickListener {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 		context = getActivity();
-
+		selectorPopup = new SelectorPopup(getActivity());
+		selectorPopup.setCallbackListener(this);
 		View view = inflater.inflate(R.layout.chatframgment, null);
 
 		// 获取本机ip
@@ -282,8 +303,10 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		//
 		// }
 		// });
+		showpButton=(ImageButton) view.findViewById(R.id.showP);
+		showpButton.setOnClickListener(this);
 		listView = (ListView) view.findViewById(R.id.listchat);
-		adapt = new MyChatAapter(context, mContact.getId());
+		adapt = new MyChatAapter(getActivity(), mContact.getId());
 		// ChatSqlOpenHelp sqlOpenHelp = new ChatSqlOpenHelp(context);
 		sqlOpenHelp = new MsgSQL(context);
 		adapt.setdata(sqlOpenHelp.loadMsg(mContact));
@@ -333,71 +356,33 @@ public class ChatFragment extends Fragment implements OnClickListener {
 				
 				break;
 			}else {
-				
-				if (!canLink) {
-					linkService();
-					break;
-				}
-				
-				new TCPClientThread(mhandler, makeSendMsg(),mContact.getIp()).start();
-				messageInputEdi.setText("");
+				startSendMsg(makeSendMsg());
 			}
-			
-			
-			
-
-		
-
-			
-			
-
-			// Chat item;
-			// clientIP = (String) spinner.getSelectedItem();
-			// if (clientIP.matches(".+\\..+\\..+\\..+")) {
-			// item = new Chat(sharedPreferences.getString("author", myIP),
-			// messageInputEdi.getText().toString().trim(), 0,
-			// sharedPreferences.getString("head", "head_1"),
-			// myIP, Utils.getSysTime());
-			// tcpClientThread = new TCPClientThread(mhandler, clientIP,
-			// TCPData.getMsg(item));
-			// tcpClientThread.start();
-			//// if (clinet==null) {
-			//// clinet = new TCPClinet(mhandler);
-			//// clinet.start();
-			//// }
-			//// clinet.sendMessage(clientIP, TCPData.getMsg(item));
-			//
-			//
-			//
-			// } else if (clientIP.equals("我")) {
-			//
-			// item = new Chat(sharedPreferences.getString("author", myIP),
-			// messageInputEdi.getText().toString().trim(), 0,
-			// sharedPreferences.getString("head", "head_1"),
-			// clientIP, Utils.getSysTime());
-			// adapt.add(item);
-			//
-			// sqlOpenHelp.add(item);
-			// } else {
-			// item = new Chat(sharedPreferences.getString("other", "机器人"),
-			// messageInputEdi.getText().toString().trim(), 1,
-			// sharedPreferences.getString("head_other", "head_1"), clientIP,
-			// Utils.getSysTime());
-			//
-			// adapt.add(item);
-			//
-			// sqlOpenHelp.add(item);
-			// }
-
-			
 
 			break;
-
+			case R.id.showP:
+				getImages();
+				break;
+				
 		}
 
 	}
 
-	// class MyConn implements ServiceConnection {
+	private void startSendMsg(Contact contact){
+		if (!canLink) {
+			linkService();
+			return;
+		}
+		
+		new TCPClientThread(mhandler, contact,mContact.getIp()).start();
+		messageInputEdi.setText("");
+	
+	}
+
+	// class MyConn implements ServiceConnection
+	
+	
+
 	//
 	// // 绑定一个服务成功的时候 调用 onServiceConnected
 	// @Override
@@ -450,4 +435,76 @@ public class ChatFragment extends Fragment implements OnClickListener {
 		return new Contact(id, name, head, lastMsg, time, myIP, msgType, direction);
 		
 	}
+	
+	private void getImages()
+    {
+		dataList.clear();
+        if (!Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED))
+        {
+            Toast.makeText(context, "暂无外部存储", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // 显示进度条
+        progress.setTitle("正在加载图片...");
+		progress.show();
+
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+
+               
+
+                // 只查询jpeg和png的图片
+
+//                        MediaStore.Images.Media.DATE_MODIFIED);
+
+                String str[] = { MediaStore.Images.Media._ID,
+						MediaStore.Images.Media.DISPLAY_NAME,
+						MediaStore.Images.Media.DATA};
+				Cursor mCursor = getActivity().getContentResolver().query(
+						MediaStore.Images.Media.EXTERNAL_CONTENT_URI, str,
+						null, null, null);
+                Log.e("TAG", mCursor.getCount() + "");
+                while (mCursor.moveToNext())
+                {
+                    
+
+                	String path=mCursor.getString(2);
+                    Log.e("TAG", path);
+                    dataList.add(new ImageBean(path));
+  
+                }
+                mCursor.close();
+
+                // 通知Handler扫描图片完成
+                mhandler.sendEmptyMessage(0x45);
+
+            }
+        }).start();
+
+    }
+
+	@Override
+	public void onComplete(List<String> list) {
+		String msgSting=list.get(list.size()-1);
+		sendPicture(msgSting);
+		
+	
+		
+	}
+	private void sendPicture(String path){
+		
+		Contact pcontact=makeSendMsg();
+		pcontact.setLastMsg(path);
+		pcontact.setMsgType("flie/picture");
+		//发送
+		
+		//
+	Chat chat=	TCPData.contact2Chat(pcontact);
+	adapt.add(chat);
+	}
+	
 }

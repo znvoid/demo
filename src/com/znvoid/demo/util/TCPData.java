@@ -30,7 +30,7 @@ public class TCPData {
 
 	/**
 	 * Sting转Chat,String 为接收到的信息
-	 * 
+	 * 废弃
 	 * @param msg
 	 * @return
 	 */
@@ -161,9 +161,10 @@ public class TCPData {
 	}
 
 	public static Chat contact2Chat(Contact contact) {
-		return new Chat(contact.getName(), contact.getLastMsg(), contact.getDirection(), contact.getHead(),
+		Chat chat= new Chat(contact.getName(), contact.getLastMsg(), contact.getDirection(), contact.getHead(),
 				contact.getIp(), contact.getTime());
-
+		chat.setMsgType(contact.getMsgType());
+		return chat;
 	}
 	
 	public static String makeSendDate(RequestHead requestHead ,Contact contact) throws JSONException {
