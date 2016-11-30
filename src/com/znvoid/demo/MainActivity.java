@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 	private LinearLayout mDrawerView;
 	private SharedPreferences sp;
 	private Context context;
-	private static ChatFragment chatFragment = new ChatFragment();
+	private  ChatFragment chatFragment ;
 	private ContactsFragment contactsFragment = new ContactsFragment();
 	private WifilistFragment wifilistFragment = new WifilistFragment();
 	private NetFragment netFragment = new NetFragment();
@@ -213,7 +213,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 			if (mContent==contactsFragment) {
 				LinkFrangemt linkFrangemt=(LinkFrangemt) getFragmentManager().findFragmentByTag(LinkFrangemt.class.getName());
 				NetBackupFragment netBackupFragment=(NetBackupFragment) getFragmentManager().findFragmentByTag(NetBackupFragment.class.getName());
+				 chatFragment=(ChatFragment) getFragmentManager().findFragmentByTag(ChatFragment.class.getName());
 				
+				 if (chatFragment!=null) {
+						getFragmentManager().popBackStack();
+						
+					}
 				if (linkFrangemt!=null) {
 					if (!linkFrangemt.isHidden()) {
 						mContent=linkFrangemt;

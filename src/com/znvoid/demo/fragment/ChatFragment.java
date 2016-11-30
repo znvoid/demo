@@ -91,10 +91,12 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction() == MESSAGE_NOTIFICATION) {
-				Contact contact = intent.getParcelableExtra("message");
-				
-				if (mContact.equals(contact.getId())) {
-					handleResult(contact);
+				Bundle bundle=intent.getExtras();
+                Contact contact = (Contact) bundle.getSerializable("message");
+                if (contact!=null) {
+                	if (mContact.equals(contact.getId())) {
+                	handleResult(contact);
+                	}
 				}
 
 			}

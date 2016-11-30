@@ -52,7 +52,8 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 	        {
 	            if (intent.getAction() == MESSAGE_NOTIFICATION)
 	            {
-	                Contact contact = intent.getParcelableExtra("message");
+	            	Bundle bundle=intent.getExtras();
+	                Contact contact = (Contact) bundle.getSerializable("message");
 	                if (contact!=null) {
 	                	  handleResult(contact);
 					}
@@ -80,7 +81,7 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 		for (int i = 0; i < list.size(); i++) {
 			Contact iContact = list.get(i);
 			
-			if (iContact.getId()==contact.getId()) {
+			if (iContact.getId().equals(contact.getId())) {
 				list.set(i, contact);
 				adapter.notifyItemChanged(i);
 				flag=true;
@@ -224,5 +225,10 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 		LocalBroadcastManager.getInstance(context).unregisterReceiver(messageReceiver);
 		super.onDestroy();
 	}
-	
+	@Override
+	public void onResume() {
+		super.onResume();
+		list.clear();
+		list.addAll(make());
+	}
 }
