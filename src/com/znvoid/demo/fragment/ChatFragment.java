@@ -14,7 +14,7 @@ import com.znvoid.demo.net.LinkThread;
 import com.znvoid.demo.net.Ping;
 import com.znvoid.demo.net.SearchThread;
 import com.znvoid.demo.net.TCPClientThread;
-import com.znvoid.demo.net.TCPClinet;
+import com.znvoid.demo.net.TCPClinetForFile;
 import com.znvoid.demo.net.TCPServer;
 import com.znvoid.demo.popup.SelectorPopup;
 import com.znvoid.demo.popup.SelectorPopup.CallbackListener;
@@ -215,7 +215,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 
 	};
 	private Intent intent;
-	private TCPClinet clinet;
+	private TCPClinetForFile clinet;
 	private Contact mContact;
 	private boolean isRefesh;
 	private SelectorPopup selectorPopup;
@@ -331,9 +331,15 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 
 		switch (v.getId()) {
 		case R.id.sendButton:// 发送按钮 事件
+			if (messageInputEdi.getText().toString().trim().equals("")) {
+				break;
+			}
 			Log.e("TCPServer", myid+"-------"+myIP);
 			if (myid.equals(mContact.getId())) {
 				String tString=messageInputEdi.getText().toString().trim();
+				if (tString.equals("#")) {
+					break;
+				}
 				Contact contact1=makeSendMsg();
 				
 				contact1.setName(Utils.getOtherName(context));
@@ -341,7 +347,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 				
 				
 				if (tString.startsWith("#")) {
-					contact1.setLastMsg(tString.substring(2));
+					contact1.setLastMsg(tString.substring(1));
 					contact1.setDirection(1);
 					
 					
@@ -500,11 +506,19 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 		Contact pcontact=makeSendMsg();
 		pcontact.setLastMsg(path);
 		pcontact.setMsgType("flie/picture");
-		//发送
 		
-		//
-	Chat chat=	TCPData.contact2Chat(pcontact);
-	adapt.add(chat);
+		if (myid.equals(mContact.getId())) {
+			
+			Chat chat=	TCPData.contact2Chat(pcontact);
+			adapt.add(chat);
+		}else {
+			//发送
+			
+			//
+		}	
+		
+		
+	
 	}
 	
 }
