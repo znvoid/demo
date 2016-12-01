@@ -131,6 +131,7 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 		}
 		return list;
 	}
+	
 	@Override
 	public void itemOnClick(View view, int position) {
 		//准备数据
@@ -231,4 +232,5 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 		list.clear();
 		list.addAll(make());
 	}
+	
 }

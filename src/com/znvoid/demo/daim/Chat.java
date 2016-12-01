@@ -59,7 +59,16 @@ public void setMsgType(String msgType) {
 		this.ip = ip;
 		this.time = time;
 	}
-
+	public Chat(String author, String message, int direction, String head, String ip,String time,String msgType) {
+		super();
+		this.author = author;
+		this.message = message;
+		this.direction = direction;
+		this.head = head;
+		this.ip = ip;
+		this.time = time;
+		this.msgType = msgType;
+	}
 	public Chat(String author, String message, int direction) {
 		super();
 		this.author = author;

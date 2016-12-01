@@ -1,6 +1,7 @@
 package com.znvoid.demo.server;
 
-
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -38,99 +39,87 @@ import android.util.Log;
 public class TCPSevice extends Service {
 
 	private Handler mHandler;
-	
+
 	private Context context;
-	
-	public static final int TCPSEVICE_RECEIVE=0X1FF;
-	
+
+	public static final int TCPSEVICE_RECEIVE = 0X1FF;
+
 	ServerSocket serverSocket;
 	Selector selector;
 
 	private MsgSQL sqlOpenHelp;
+
 	@Override
 	public void onCreate() {
 		Log.e("TCPServer", "onCreate");
-		context=getApplicationContext();
-		sqlOpenHelp=new MsgSQL(context);
+		context = getApplicationContext();
+		sqlOpenHelp = new MsgSQL(context);
 		new TCPThread().start();
 		super.onCreate();
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		Log.e("TCPServer", "onDestroy");
 		try {
 			serverSocket.close();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 			selector.close();
 		} catch (IOException e) {
-			
 			e.printStackTrace();
 		}
 		super.onDestroy();
 	}
+
 	@Override
 	public IBinder onBind(Intent intent) {
-		
+
 		Log.e("TCPServer", "bandign");
 		return new MyIBiner();
 	}
 
-	
-	
 	@Override
 	public boolean onUnbind(Intent intent) {
 		Log.e("TCPServer", "unbindService");
-		
+
 		return super.onUnbind(intent);
 	}
-	class MyIBiner  extends Binder implements  ISevice{
+
+	class MyIBiner extends Binder implements ISevice {
 
 		@Override
 		public void setHandlerr(Handler handler) {
-			
-			addHandler( handler);
+
+			addHandler(handler);
 		}
 
-		
-		
-		
 	}
-	
-	private void addHandler(Handler mHandler) {
-		
-		this.mHandler=mHandler;
-	}
-	private void clearHandler() {
-		mHandler=null;
-	}
-	
-	
 
-	
-	
-	 class TCPThread extends Thread {
+	private void addHandler(Handler mHandler) {
+
+		this.mHandler = mHandler;
+	}
+
+	private void clearHandler() {
+		mHandler = null;
+	}
+
+	class TCPThread extends Thread {
 		/**
 		 * 默认服务器端口
 		 */
-		
 
-		 private  final int DEFAULT_PORT = 12345;
+		private final int DEFAULT_PORT = 12345;
 		public static final String CHATTEST = "CHATMESSAGE V1.0 CHATTEST";
 		public final String TAG = "TCPServer";
-		
+
 		private boolean isRun = true;
-		
 
-		
-
-		private ByteBuffer buffer = ByteBuffer.allocateDirect(1024*1024);
-
-	
+		private ByteBuffer buffer = ByteBuffer.allocateDirect(1024 * 1024);
 
 		public TCPThread() {
 			super();
@@ -144,15 +133,15 @@ public class TCPSevice extends Service {
 				doit();
 			} catch (Exception e) {
 				Log.e(TAG, e.toString());
-				//isRun = false;
-				
+				// isRun = false;
+
 				try {
 					serverSocket.close();
 					Log.e(TAG, "server stop");
-					//handmessage("server stop", SERVER_STOP);
-					
+					// handmessage("server stop", SERVER_STOP);
+
 				} catch (IOException e1) {
-					
+
 					e1.printStackTrace();
 				}
 				e.printStackTrace();
@@ -160,24 +149,23 @@ public class TCPSevice extends Service {
 
 		}
 
-		
 		private void doit() throws Exception {
 
 			ServerSocketChannel serverChannel = ServerSocketChannel.open();
-			 serverSocket = serverChannel.socket();
+			serverSocket = serverChannel.socket();
 
 			serverSocket.bind(new InetSocketAddress(DEFAULT_PORT));
 
 			serverChannel.configureBlocking(false);
 
-			 selector = Selector.open();
+			selector = Selector.open();
 
 			// Register the ServerSocketChannel with the Selector
 			serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 			while (isRun) {
-				
+
 				int n = selector.select();
-			
+
 				if (n == 0) {
 					// nothing to do
 					continue;
@@ -185,33 +173,31 @@ public class TCPSevice extends Service {
 
 				Iterator<SelectionKey> it = selector.selectedKeys().iterator();
 
-				while(it.hasNext()){
-				SelectionKey key = (SelectionKey) it.next();
+				while (it.hasNext()) {
+					SelectionKey key = (SelectionKey) it.next();
 
-				if (key.isAcceptable()) {
-					Socket socket = ((ServerSocketChannel) key.channel()).accept().socket();
-					Log.e(TAG, "接收到" + socket);
-					SocketChannel sc = socket.getChannel();
-					sc.configureBlocking(false);
-					sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_CONNECT);
-				} else if (key.isConnectable()) {
-					Log.e(TAG, "Connectable");
-					
-					String ip=((SocketChannel) key.channel()).socket().getInetAddress().getHostAddress();
-					
-					//handmessage(ip, SERVER_CLIENT_UNCOON);
-					
-					
-					
-					key.cancel();
-				} else if (key.isReadable()) {
-					Log.e(TAG, "Readable");
-					readDataFromSocket(key);
+					if (key.isAcceptable()) {
+						Socket socket = ((ServerSocketChannel) key.channel()).accept().socket();
+						Log.e(TAG, "接收到" + socket);
+						SocketChannel sc = socket.getChannel();
+						sc.configureBlocking(false);
+						sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_CONNECT);
+					} else if (key.isConnectable()) {
+						Log.e(TAG, "Connectable");
 
-				} else if (key.isWritable()) {
+						String ip = ((SocketChannel) key.channel()).socket().getInetAddress().getHostAddress();
 
-				}
-				it.remove();
+						// handmessage(ip, SERVER_CLIENT_UNCOON);
+
+						key.cancel();
+					} else if (key.isReadable()) {
+						Log.e(TAG, "Readable");
+						readDataFromSocket(key);
+
+					} else if (key.isWritable()) {
+
+					}
+					it.remove();
 				}
 			}
 
@@ -229,45 +215,74 @@ public class TCPSevice extends Service {
 			while ((count = socketChannel.read(buffer)) > 0) {
 				buffer.flip(); // Make buffer readable
 				if (buffer.hasRemaining()) {
+
+					// String re =
+					// Charset.forName("gbk").decode(buffer).toString();
+					String re = Charset.forName("UTF-8").decode(buffer).toString();
+					re = re.replace("", "");
 					
-				
-//				String re = Charset.forName("gbk").decode(buffer).toString();
-				 String re=Charset.forName("UTF-8").decode(buffer).toString();
-				 re=re.replace("\\", "");
-				 
-				 
-				 Log.e(TAG, "接收到" + re);
-			RequestHead requestHead=TCPData.parseJsonHead(re);
-			 if (requestHead==null) {
+					
+					Log.e(TAG, "接收到" + re);
+					RequestHead requestHead = TCPData.parseJsonHead(re);
+					if (requestHead == null) {
 						break;
-				}
-			Contact contact=TCPData.parseJsonConact(re);
-				
-				 
-				if (requestHead.getheadParam("Content-Type").endsWith("message/test")) {
-					 Log.e(TAG, "接收到ok" );
-					if (contact != null) {
-						sqlOpenHelp.updataContact(contact);
-						socketChannel.write(ByteBuffer.wrap(TCPData.creatTestMessage(context).getBytes()));
-						key.cancel();
 					}
-					
-					
-				}else if (requestHead.getheadParam("Content-Type").endsWith("message/string")) {
-					
-					contact.setDirection(1);
-					sqlOpenHelp.add(contact);
-					
-					//发送广播
-					sendb(contact);
-					
-				} {
-					
-					
-					
-					
-				}
+					Contact contact = TCPData.parseJsonConact(re);
+
+					if (requestHead.getheadParam("Content-Type").endsWith("message/test")) {
+						Log.e(TAG, "接收到ok");
+						if (contact != null) {
+							sqlOpenHelp.updataContact(contact);
+							socketChannel.write(ByteBuffer.wrap(TCPData.creatTestMessage(context).getBytes()));
+							key.cancel();
+						}
+
+					} else if (requestHead.getheadParam("Content-Type").endsWith("message/string")) {
+
+						contact.setDirection(1);
+						sqlOpenHelp.add(contact);
+
+						// 发送广播
+						sendb(contact);
+
+					} else if (requestHead.getheadParam("Content-Type").endsWith("message/get")) {
+						Log.e(TAG, "文件获取");
+					if(	sqlOpenHelp.findMsg(contact)){
+						Log.e(TAG, "能获取");
+						String fileName=contact.getLastMsg();
+						Log.e(TAG, fileName);
+						File file=new File(fileName);
+						
+						byte[] head=ServiceIssue.fileLenghtDecoed(file.length());
+						
+						byte[] bs=new byte[1024*4];
+						socketChannel.write(ByteBuffer.wrap(head,0,30));
+						FileInputStream fileInputStream=new FileInputStream(file);
+						Log.e(TAG, "文件大小"+fileInputStream.available());
+						Log.e(TAG, "开始发送");
+						int temp=0;
+						while ((temp=fileInputStream.read(bs))!=-1) {
+							Log.e(TAG, "发送.....");
+							
+							socketChannel.write(ByteBuffer.wrap(bs,0,temp));
+							
+						}
+						fileInputStream.close();	
+						Log.e(TAG, "发送文件结束");
+						key.cancel();	
+						
+						
+					}else {
+						Log.e(TAG, "不能获取");
+						key.cancel();	
+					}
 				
+					}else if (requestHead.getheadParam("Content-Type").endsWith("flie/picture")) {
+						Log.e(TAG, "接收到图片");
+						ServiceIssue.sendb(context, contact, "com.zn.demo.CHATMESSAGEFILE");
+					}
+
+
 				}
 				buffer.clear(); // Empty buffer
 
@@ -279,18 +294,19 @@ public class TCPSevice extends Service {
 
 		}
 
-		
-	 }
+	}
+
 	/**
 	 * 发送广播
+	 * 
 	 * @param contact
 	 */
-	 public void sendb(Contact contact) {
-		 Intent intent = new Intent("com.zn.demo.CHATMESSAGE");
-		   Bundle mBundle = new Bundle();    
-	        mBundle.putSerializable("message",contact);    
-	        intent.putExtras(mBundle);
-	       LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-	        
+	public void sendb(Contact contact) {
+		Intent intent = new Intent("com.zn.demo.CHATMESSAGE");
+		Bundle mBundle = new Bundle();
+		mBundle.putSerializable("message", contact);
+		intent.putExtras(mBundle);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
 	}
 }

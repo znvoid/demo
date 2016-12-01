@@ -116,16 +116,17 @@ public class MyChatAapter extends BaseAdapter {
 			convertView.setTag(holder);
 		}
 		holder.text.setText(chat.getMessage());
-		holder.text.setId(position);
+		holder.text.setTag(position);
 		
 		holder.text.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
+				int i=(Integer) v.getTag();
+				String msgType=datalist.get(i).getMsgType();
 				
-				String msgType=datalist.get(v.getId()).getMsgType();
 				if ("flie/picture".equals(msgType)) {
-					showImagePopup.Show(datalist.get(v.getId()).getMessage());
+					showImagePopup.Show(datalist.get(i).getMessage());
 				}
 				
 			}
@@ -136,7 +137,7 @@ public class MyChatAapter extends BaseAdapter {
 			public boolean onLongClick(View v) {
 				// TODO Auto-generated method stub
 
-				delposition = v.getId();
+				delposition = (Integer) v.getTag();
 
 				dialog();
 

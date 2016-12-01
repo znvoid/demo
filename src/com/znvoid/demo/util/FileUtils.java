@@ -319,5 +319,56 @@ public class FileUtils {
         return list;
     }
 	
+	public static File creatFileStream(String fileName) {
+		File file=null;
+		if (!Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {
+			//
+			
+			
+		}else {
+			
+			 file=	sureFileName("/sdcard/znvoid",fileName);
+			
+			
+		}
+		
+		
+		
+		
+		return file;
+	}
+	/**
+	 * 判定sdcard上dirPath文件下是否有filename文件，有就改变文件名,为了创建新的文件
+	 * @param fileName
+	 * @return
+	 */
+	public static File sureFileName(String dirPath,String fileName) {
+		File file=new File(dirPath, fileName);
+		if (file.exists()) {
+			boolean flag=true;
+			int i=1;
+			int t=fileName.lastIndexOf(".");
+			while (flag) {
+				if (t!=-1) {
+				
+					String name=fileName.substring(0, t)+i+fileName.substring(t, fileName.length());
+					file=new File(dirPath, name);
+				}else {
+					file=new File(dirPath, fileName+i);
+				}
+				
+				if (file.exists()) {
+					flag=false;
+				}
+				
+			}
+			
+		}
+		
+		
+		
+		return file;
+	}
 	
 }  

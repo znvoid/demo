@@ -7,6 +7,7 @@ import com.znvoid.demo.R;
 import com.znvoid.demo.daim.Contact;
 import com.znvoid.demo.imf.ItemClickListener;
 import com.znvoid.demo.imf.ItemTouchMoveListener;
+import com.znvoid.demo.sql.MsgSQL;
 import com.znvoid.demo.util.Utils;
 
 import android.content.Context;
@@ -25,10 +26,12 @@ public class ContactsAdapter extends  Adapter<ContactsAdapter.MyViewHolder> impl
 	private List<Contact> list;
 	private Context context;
 	private ItemClickListener listener;
+	private MsgSQL sql;
 	public ContactsAdapter(List<Contact> list,Context context,ItemClickListener listener) {
 		this.context=context;
 		this.list=list;
 		this.listener=listener;
+		sql=new MsgSQL(context);
 	}
 	
 	
@@ -76,8 +79,10 @@ public class ContactsAdapter extends  Adapter<ContactsAdapter.MyViewHolder> impl
 
 	@Override
 	public boolean onItemRemove(int position) {
+		sql.delete(list.get(position));
 		list.remove(position);
 		notifyItemRemoved(position);
+		
 		return true;
 	}
 

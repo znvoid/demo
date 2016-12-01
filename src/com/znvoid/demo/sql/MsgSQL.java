@@ -88,6 +88,18 @@ public class MsgSQL extends MySQLiteOpenHelper {
 			db.close();
 		}
 	}
+	public void delete(Contact contact) {
+		SQLiteDatabase db = getWritableDatabase();
+		if (db.isOpen()) {
+			// db.execSQL("delete from person where name=?", new
+			// Object[]{name});
+
+			db.delete("chatContacts", "contact=?",
+					new String[] {contact.getId() });
+
+			db.close();
+		}
+	}
 
 	// 获取所有数据
 	public List<Contact> loadContacts() {
@@ -141,8 +153,8 @@ public class MsgSQL extends MySQLiteOpenHelper {
 			String message = cursor.getString(2);// 获取第3列的值
 			String time = cursor.getString(3);// 获取第4列的值
 			int direction = cursor.getInt(4);// 获取第四列的值
-
-			list.add(new Chat(contact.getName(), message, direction, contact.getHead(), contact.getIp(), time));
+			String msgType = cursor.getString(5);
+			list.add(new Chat(contact.getName(), message, direction, contact.getHead(), contact.getIp(), time,msgType));
 
 		}
 		cursor.close();
@@ -230,5 +242,21 @@ public class MsgSQL extends MySQLiteOpenHelper {
 		db.close();
 	}
 	
-	
+	public boolean findMsg(Contact contact) {
+		boolean result=false;
+		SQLiteDatabase db = getReadableDatabase();
+		if (db.isOpen()) {
+			
+			Cursor cursor = db.query("messageData", null, "contact=? and message=? and time=?", new String[] { contact.getId(),contact.getLastMsg(),contact.getTime() }, null, null, null);
+			
+			if (cursor.moveToFirst()) {
+				result=true;
+				cursor.close();
+			}
+			db.close();
+		}
+		
+		
+		return result;
+	}
 }

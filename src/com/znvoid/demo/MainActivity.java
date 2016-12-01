@@ -1,6 +1,7 @@
 package com.znvoid.demo;
 
 import com.znvoid.demo.adapt.Menulistviewadapt;
+import com.znvoid.demo.daim.Contact;
 import com.znvoid.demo.daim.MLvData;
 import com.znvoid.demo.fragment.AccountFragm;
 import com.znvoid.demo.fragment.ChatFragment;
@@ -10,21 +11,32 @@ import com.znvoid.demo.fragment.LinkFrangemt;
 import com.znvoid.demo.fragment.NetBackupFragment;
 import com.znvoid.demo.fragment.NetFragment;
 import com.znvoid.demo.fragment.WifilistFragment;
+import com.znvoid.demo.net.TCPClinetForFile;
+import com.znvoid.demo.server.ServiceIssue;
 import com.znvoid.demo.server.TCPSevice;
+import com.znvoid.demo.sql.MsgSQL;
+import com.znvoid.demo.util.TCPData;
 import com.znvoid.demo.util.Utils;
 import com.znvoid.demo.util.WifiUtil;
 import com.znvoid.demo.view.CircleImageView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.SearchManager;
+import android.app.AlertDialog.Builder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -32,6 +44,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 	private LinearLayout mDrawerView;
 	private SharedPreferences sp;
 	private Context context;
-	private  ChatFragment chatFragment ;
+	private ChatFragment chatFragment;
 	private ContactsFragment contactsFragment = new ContactsFragment();
 	private WifilistFragment wifilistFragment = new WifilistFragment();
 	private NetFragment netFragment = new NetFragment();
@@ -66,9 +79,47 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
 	private String mIP;
 	private WifiUtil wifiUtil;
-	private  Fragment mContent=new Fragment() ;// 当前Fragment
+	private Fragment mContent = new Fragment();// 当前Fragment
 	private Toolbar toolbar;
 	SearchView searchView;
+	private Contact mContact;
+	private MsgSQL sql;
+	private BroadcastReceiver messageReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction() == "com.zn.demo.CHATMESSAGEFILE") {
+				Bundle bundle = intent.getExtras();
+				Contact contact = (Contact) bundle.getSerializable("message");
+				if (contact != null) {
+					Log.e("TCPServer", "main接收到广播");
+					mContact = contact;
+					shoewDailog();
+				}
+
+			}
+
+		}
+
+	};
+	private Handler mHandler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case TCPClinetForFile.FILE_FAIL:
+				Log.e("TCPServer", "接收文件失败");
+				Toast.makeText(context, "接收文件失败", 0).show();
+				break;
+			case TCPClinetForFile.FILE_SUCCESD:
+				Log.e("TCPServer", "接收文件成功");
+				Contact contact = (Contact) msg.obj;
+				contact.setDirection(1);
+				sql.add(contact);
+				ServiceIssue.sendb(context, contact, null);
+				Toast.makeText(context, "接收文件成功", 0).show();
+				break;
+
+			}
+		};
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 		context = this;
 		wifiUtil = new WifiUtil(context);
 		mIP = wifiUtil.getIP();
-
+		sql=new MsgSQL(context);
 		if (sp.getString("ID", "NULL").equals("NULL")) {
 
 			Editor editor = sp.edit();
@@ -93,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 			editor.commit();
 
 		}
-		
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -110,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 				toolbar.setTitle("菜单");
 				invalidateOptionsMenu();
 				cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
-				textView.setText(sp.getString("author","ID:"+ Utils.getId(context)));
+				textView.setText(sp.getString("author", "ID:" + Utils.getId(context)));
 				super.onDrawerOpened(drawerView);
 			}
 
@@ -132,15 +182,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 		cim = (CircleImageView) findViewById(R.id.profile_image);
 		textView = (TextView) findViewById(R.id.profile_tv);
 		cim.setImageBitmap(Utils.getRes(context, sp.getString("head", "head_1")));
-		textView.setText(sp.getString("author", "ID:"+ Utils.getId(context)));
+		textView.setText(sp.getString("author", "ID:" + Utils.getId(context)));
 		// FragmentManager
 
 		// chatfragment初始化
-		//mContent=contactsFragment;
+		// mContent=contactsFragment;
 		switchContent(contactsFragment);
-		// switchContent(chatFragment);
-		// getFragmentManager().beginTransaction().replace(R.id.mian_frame,
-		// chatFragment, "chatfragment").commit();
+		//注册广播
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("com.zn.demo.CHATMESSAGEFILE");
+		LocalBroadcastManager.getInstance(context).registerReceiver(messageReceiver, filter);
 
 		// mDrawerList添加适配器
 		mDrawerList.setAdapter(new Menulistviewadapt(this));
@@ -209,34 +260,32 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
 	public void switchContent(Fragment fragment) {
 		if (mContent != fragment) {
-			
-			if (mContent==contactsFragment) {
-				LinkFrangemt linkFrangemt=(LinkFrangemt) getFragmentManager().findFragmentByTag(LinkFrangemt.class.getName());
-				NetBackupFragment netBackupFragment=(NetBackupFragment) getFragmentManager().findFragmentByTag(NetBackupFragment.class.getName());
-				 chatFragment=(ChatFragment) getFragmentManager().findFragmentByTag(ChatFragment.class.getName());
-				
-				 if (chatFragment!=null) {
-						getFragmentManager().popBackStack();
-						
-					}
-				if (linkFrangemt!=null) {
+
+			if (mContent == contactsFragment) {
+				LinkFrangemt linkFrangemt = (LinkFrangemt) getFragmentManager()
+						.findFragmentByTag(LinkFrangemt.class.getName());
+				NetBackupFragment netBackupFragment = (NetBackupFragment) getFragmentManager()
+						.findFragmentByTag(NetBackupFragment.class.getName());
+				chatFragment = (ChatFragment) getFragmentManager().findFragmentByTag(ChatFragment.class.getName());
+
+				if (chatFragment != null) {
+					getFragmentManager().popBackStack();
+
+				}
+				if (linkFrangemt != null) {
 					if (!linkFrangemt.isHidden()) {
-						mContent=linkFrangemt;
+						mContent = linkFrangemt;
 					}
-					
+
 				}
-				if (netBackupFragment!=null) {
+				if (netBackupFragment != null) {
 					if (!netBackupFragment.isHidden()) {
-						mContent=netBackupFragment;
+						mContent = netBackupFragment;
 					}
 				}
-				
-				
+
 			}
-			
-			
-			
-			
+
 			if (!fragment.isAdded()) {
 				getFragmentManager().beginTransaction().hide(mContent)
 						.add(R.id.mian_frame, fragment, fragment.getClass().getName()).commit();
@@ -344,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		
+
 		System.out.println(keyCode);
 		if (keyCode == KeyEvent.KEYCODE_BACK && getFragmentManager().getBackStackEntryCount() != 0) {
 			// 退出程序的代码
@@ -355,4 +404,35 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 		return super.onKeyDown(keyCode, event);
 	}
 
+	public void shoewDailog() {
+		AlertDialog.Builder builder = new Builder(context);
+		builder.setMessage("来自" + mContact.getName() + "(ID:" + mContact.getId() + ")");
+
+		builder.setTitle("是否接收文件");
+
+		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Contact sContact = new Contact(Utils.getId(context), Utils.getName(context), Utils.getHead(context),
+						mContact.getLastMsg(), mContact.getTime(), mIP, mContact.getMsgType(), mContact.getDirection());
+
+				new TCPClinetForFile(mContact, mHandler, sContact).strat();
+
+				dialog.dismiss();
+
+			}
+		});
+
+		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+
+				dialog.dismiss();
+			}
+		});
+
+		builder.create().show();
+	}
 }

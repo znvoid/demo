@@ -154,7 +154,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 				break;
 			case LinkThread.LINK_SUCCESED:
 				canLink = true;
-				// progress.dismiss();
+				 progress.dismiss();
 				Contact contact3 = (Contact) msg.obj;
 				mContact.setName(contact3.getName());
 				mContact.setHead(contact3.getHead());
@@ -176,7 +176,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 				break;
 			case TIME_OUT:
 				new SearchThread(TCPData.creatTestMessage(context), mhandler).start();
-				;
+			
 
 				break;
 				
@@ -358,6 +358,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 					contact1.setDirection(0);
 					
 				}
+				sqlOpenHelp.add(contact1);
 				adapt.add(TCPData.contact2Chat(contact1));
 				
 				messageInputEdi.setText("");
@@ -481,7 +482,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
                     
 
                 	String path=mCursor.getString(2);
-                    Log.e("TAG", path);
+                  //  Log.e("TAG", path);
                     dataList.add(new ImageBean(path));
   
                 }
@@ -515,7 +516,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 			adapt.add(chat);
 		}else {
 			//·¢ËÍ
-			
+			new TCPClientThread(mhandler,pcontact, mContact.getIp()).start();
 			//
 		}	
 		
