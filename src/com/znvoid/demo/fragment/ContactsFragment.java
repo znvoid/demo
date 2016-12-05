@@ -13,6 +13,7 @@ import com.znvoid.demo.sql.MsgSQL;
 import com.znvoid.demo.util.Utils;
 import com.znvoid.demo.util.WifiUtil;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -22,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,6 +31,9 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -40,6 +45,7 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 	private TextView tv1;
 	private TextView tv3;
 	private RecyclerView recyclerView ;
+	private FloatingActionButton fab;
 	private ContactsAdapter adapter;
 	private List<Contact> list=new ArrayList<Contact>();
 	private FragmentManager fm;
@@ -117,8 +123,8 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 		tv3 = (TextView) view.findViewById(R.id.contacts_tv3);
 		tv1.setOnClickListener(this);
 		tv3.setOnClickListener(this);
-		
-		
+		fab=(FloatingActionButton) view.findViewById(R.id.contacts_fab);
+		fab.setOnClickListener(this);
 		return view;
 		
 		
@@ -216,6 +222,15 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 				transaction.commit();
 			}
 			break;
+			case R.id.contacts_fab:
+				ObjectAnimator animation=ObjectAnimator.ofFloat(fab, "rotation", 0,180,360);
+				animation.setDuration(500);
+				animation.start();
+				
+				list.clear();
+				list.addAll(make());
+				adapter.notifyDataSetChanged();
+				break;
 		}
 		
 		
@@ -231,6 +246,7 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 		super.onResume();
 		list.clear();
 		list.addAll(make());
+		adapter.notifyDataSetChanged();
 	}
 	
 }

@@ -254,17 +254,25 @@ public class TCPSevice extends Service {
 						File file=new File(fileName);
 						
 						byte[] head=ServiceIssue.fileLenghtDecoed(file.length());
-						
+						ByteBuffer mBuffer=ByteBuffer.allocate(1024*4);
 						byte[] bs=new byte[1024*4];
 						socketChannel.write(ByteBuffer.wrap(head,0,30));
 						FileInputStream fileInputStream=new FileInputStream(file);
 						Log.e(TAG, "文件大小"+fileInputStream.available());
 						Log.e(TAG, "开始发送");
+						int total=0;
 						int temp=0;
 						while ((temp=fileInputStream.read(bs))!=-1) {
-							Log.e(TAG, "发送.....");
-							
-							socketChannel.write(ByteBuffer.wrap(bs,0,temp));
+							total=total+temp;
+							Log.e(TAG, "发送....."+total);
+							mBuffer.clear();
+							mBuffer.put(bs);
+							mBuffer.flip();
+							while(mBuffer.hasRemaining()) {
+								socketChannel.write(mBuffer);
+							}
+
+						
 							
 						}
 						fileInputStream.close();	

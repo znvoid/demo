@@ -36,7 +36,7 @@ public class TCPClinetForFile {
 	private Handler mHandler;
 	private OutputStream outputStream;
 	private InputStream in;
-	
+	private File file ;
 
 	public TCPClinetForFile(Contact contact, Handler handler, Contact sContact) {
 
@@ -59,6 +59,10 @@ public class TCPClinetForFile {
 				
 				
 			} catch (Exception e) {
+				if (file!=null) {
+					file.delete();
+				}
+				
 				Log.e("TAG", "TCPClinetForFile"+e.toString());
 				mHandler.sendMessage(mHandler.obtainMessage(FILE_FAIL));
 				
@@ -81,7 +85,7 @@ public class TCPClinetForFile {
 		
 		SocketAddress remoteAddr = new InetSocketAddress(ip, port);
 		nSocket.connect(remoteAddr, 3000);
-		nSocket.setSoTimeout(2000);
+		nSocket.setSoTimeout(9000);
 		in = nSocket.getInputStream();
 		// inr= new BufferedReader(new InputStreamReader(
 		// nSocket.getInputStream())) ;
@@ -114,13 +118,14 @@ public class TCPClinetForFile {
 			String line = new String(buffer).trim();
 			if (line.startsWith("File-Length:")) {
 				total = Integer.parseInt(line.substring(12));
+				Log.e("TAG","文件大小："+total);
 				String path = mContact.getLastMsg();
 				String fileName = path.substring(path.lastIndexOf("/") + 1);
-				File file = FileUtils.creatFileStream(fileName);
+				 file = FileUtils.creatFileStream(fileName);
 				Log.e("TAG","文件路径"+ file.getAbsolutePath());
 				mContact.setLastMsg(file.getAbsolutePath());
 				FileOutputStream fileOutputStream = new FileOutputStream(file);
-				byte[] buf = new byte[1024];
+				byte[] buf = new byte[1024*4];
 				int n = 0;
 				while (total > length) {
 					
