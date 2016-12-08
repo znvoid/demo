@@ -13,6 +13,7 @@ import com.znvoid.demo.daim.ImageBean;
 import com.znvoid.demo.net.LinkThread;
 import com.znvoid.demo.net.Ping;
 import com.znvoid.demo.net.SearchThread;
+import com.znvoid.demo.net.TCPClient;
 import com.znvoid.demo.net.TCPClientThread;
 import com.znvoid.demo.net.TCPClinetForFile;
 import com.znvoid.demo.net.TCPServer;
@@ -81,7 +82,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 	private SharedPreferences sharedPreferences;
 	// private TCPServerThread tcpServerThread;
 	private TCPServer tcpServerThread;
-	private TCPClientThread tcpClientThread;
+	private TCPClient tcpClient;
 	// MyConn conn;
 
 	private boolean canLink = false;
@@ -124,12 +125,12 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 				// sqlOpenHelp.add(chat_cr);
 				// }
 				break;
-			case TCPClientThread.CLIENT_SEND_FAIL:
+			case TCPClient.CLIENT_SEND_FAIL:
 				Log.e("Light", "发送失败");
 				canLink = false;
 				Toast.makeText(context, "发送失败！", Toast.LENGTH_SHORT).show();
 				break;
-			case TCPClientThread.CLIENT_SEND_SUCCSSED:
+			case TCPClient.CLIENT_SEND_SUCCSSED:
 
 				Contact contact = (Contact) msg.obj;
 				contact.setId(mContact.getId());
@@ -260,7 +261,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 		myid = Utils.getId(context);
 		// 创建tcpsServer
 		// tcpServerThread = new TCPServerThread(context,mhandler);
-
+		tcpClient=new TCPClient(mhandler);
 		// tcpServerThread = new TCPServer(context,mhandler);
 		// tcpServerThread.start();
 		// intent = new Intent(context, TCPSevice.class);
@@ -383,7 +384,14 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 			return;
 		}
 		
-		new TCPClientThread(mhandler, contact,mContact.getIp()).start();
+//		new TCPClientThread(mhandler, contact,mContact.getIp()).start();
+		tcpClient.Start( mContact.getIp());
+		try {
+			tcpClient.send(contact);
+		} catch (Exception e) {
+			Toast.makeText(context, "发送队列满了", 0).show();
+			e.printStackTrace();
+		}
 		messageInputEdi.setText("");
 	
 	}
@@ -428,6 +436,7 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 	@Override
 	public void onDestroy() {
 		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(messageReceiver);
+		tcpClient.stop();
 		super.onDestroy();
 	}
 	
@@ -516,8 +525,15 @@ public class ChatFragment extends Fragment implements OnClickListener, CallbackL
 			adapt.add(chat);
 		}else {
 			//发送
-			new TCPClientThread(mhandler,pcontact, mContact.getIp()).start();
+//			new TCPClientThread(mhandler,pcontact, mContact.getIp()).start();
 			//
+			tcpClient.Start( mContact.getIp());
+			try {
+				tcpClient.send(pcontact);
+			} catch (Exception e) {
+				Toast.makeText(context, "发送队列满了", 0).show();
+				e.printStackTrace();
+			}
 		}	
 		
 		

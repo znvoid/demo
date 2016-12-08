@@ -24,7 +24,7 @@ public class Contact implements Serializable {
 
 	public Contact(String id, String name, String head, String ip) {
 		
-		this(id, name, head, "Null", "Null", ip);
+		this(id, name, head, "NULL", "NULL", ip);
 	}
 
 	public Contact(String id, String name, String head, String lastMsg, String time, String ip, String msgType,

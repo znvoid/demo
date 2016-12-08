@@ -97,13 +97,17 @@ public class ContactsAdapter extends  Adapter<ContactsAdapter.MyViewHolder> impl
 		Contact contact = list.get(position);
 		viewHolder.iv_head.setImageBitmap(Utils.getRes(context, contact.getHead()) );
 		viewHolder.tv_name.setText(contact.getName());
-		if (contact.getLastMsg().equals("Null")) {
+		if (contact.getLastMsg().equals("NULL")) {
 			viewHolder.tv_Msg.setText("");
 			viewHolder.tv_time.setText("");
 			
 		}else {
 			viewHolder.tv_Msg.setText(contact.getLastMsg());
-			viewHolder.tv_time.setText(contact.getTime().split("    ")[1]);
+			String[] times=contact.getTime().split("    ");
+			if (times.length>1) {
+				viewHolder.tv_time.setText(times[1]);
+			}
+			
 		}
 		
 		

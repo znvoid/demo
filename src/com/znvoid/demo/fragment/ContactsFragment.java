@@ -133,7 +133,7 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 	private List<Contact> make() {
 		List<Contact> list=mDB.loadContacts();
 		if (list.size()==0) {
-			list.add(new Contact(Utils.getId(context), Utils.getName(context), Utils.getHead(context), new WifiUtil(context).getIP()));
+			list.add(new Contact(Utils.getId(context), Utils.getOtherName(context), Utils.getOtherHead(context), new WifiUtil(context).getIP()));
 		}
 		return list;
 	}
@@ -241,12 +241,16 @@ public class ContactsFragment extends Fragment implements OnClickListener,ItemCl
 		LocalBroadcastManager.getInstance(context).unregisterReceiver(messageReceiver);
 		super.onDestroy();
 	}
+
 	@Override
-	public void onResume() {
-		super.onResume();
-		list.clear();
-		list.addAll(make());
-		adapter.notifyDataSetChanged();
+	public void onHiddenChanged(boolean hidden) {
+		super.onHiddenChanged(hidden);
+		if (!hidden) {
+			list.clear();
+			list.addAll(make());
+			adapter.notifyDataSetChanged();
+		}
+		
+		
 	}
-	
 }
