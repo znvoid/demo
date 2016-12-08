@@ -1,6 +1,6 @@
 # demo
 我的第一个Android，局域网聊天
-
+![1][1.png]
 使用 appcompat design recyclerview
 第三方库 imageload
 
