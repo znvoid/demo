@@ -72,7 +72,7 @@ public class BookFactoryImp implements BookFactory, BookMangerListener {
         mPaint.setColor(m_textColor);
         mVisibleWidth = mWidth - marginWidth * 2;
         mVisibleHeight = mHeight - marginHeight * 2;
-        mLineCount = (int) (mVisibleHeight / m_fontSize)-1; // 可显示的行数
+        mLineCount = (int) (mVisibleHeight / m_fontSize-1); // 可显示的行数
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mPageCanvas = new Canvas(mBitmap);
         mNextBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
