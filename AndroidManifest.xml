@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BookpageActivity"
+            android:name=".BookReadingActivity"
             android:screenOrientation="portrait"
              >
         </activity>

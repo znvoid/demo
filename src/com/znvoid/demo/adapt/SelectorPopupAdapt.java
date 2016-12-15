@@ -3,6 +3,7 @@ package com.znvoid.demo.adapt;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.znvoid.demo.R;
@@ -11,6 +12,7 @@ import com.znvoid.demo.popup.ShowImagePopup;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.util.Log;
@@ -34,18 +36,19 @@ public class SelectorPopupAdapt extends BaseAdapter implements OnCheckedChangeLi
 	protected LayoutInflater mInflater;
 	private ShowImagePopup showImagePopup;
 	
-	private ImageLoader imageLoader;
+	private DisplayImageOptions options;
 	private CheckBoxClickListener listener;
 
 	public SelectorPopupAdapt(Activity context, GridView gridView) {
 		this.mGridView=gridView;
 		mInflater = LayoutInflater.from(context);
 		showImagePopup=new ShowImagePopup(context);
-		ImageLoaderConfiguration configuration = ImageLoaderConfiguration
-				.createDefault(context);
-		
-		imageLoader=ImageLoader.getInstance();
-				imageLoader.init(configuration);
+		options= new DisplayImageOptions.Builder()   
+                .cacheInMemory(true)  
+                .cacheOnDisk(true)  
+                .bitmapConfig(Bitmap.Config.RGB_565)  
+                .build();
+
 	}
 
 	
@@ -110,14 +113,14 @@ public void setdata(List<ImageBean> list) {
 //		if (position==0) {
 //			viewHolder.mImageView.setImageResource(R.drawable.default_error);;
 //		} else {
-		imageLoader.displayImage("file://"+path, viewHolder.mImageView);	
+		ImageLoader.getInstance().displayImage("file://"+path, viewHolder.mImageView,options);	
 //		}
 		
 //		 viewHolder.mImageView.setImageBitmap(BitmapFactory.decodeFile(path));
-		
+		viewHolder.update();
 		viewHolder.mCheckBox.setOnCheckedChangeListener(this);
 		viewHolder.mImageView.setOnClickListener(this);
-		viewHolder.update();
+		
 		return convertView;
 	}
 	
@@ -130,8 +133,6 @@ public void setdata(List<ImageBean> list) {
 				
 				@Override
 				public void onGlobalLayout() {
-					int position=(Integer) mCheckBox.getTag();
-					
 					View v = (View) maskView.getTag();
 					int width = v.getWidth();
 					v.setLayoutParams(new GridView.LayoutParams(
@@ -172,8 +173,11 @@ public void setdata(List<ImageBean> list) {
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		int position=(Integer) buttonView.getTag();
-		listener.checkBoxOnClick(list.get(position).getPath());
-		list.get(position).setChoosed(isChecked);
+		if (list.get(position).isChoosed()!=isChecked) {
+			listener.checkBoxOnClick(list.get(position).getPath());
+			list.get(position).setChoosed(isChecked);
+		}
+		
 	}
 
 

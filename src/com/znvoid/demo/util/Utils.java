@@ -25,6 +25,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class Utils {
+	private static  float scale;
 	public static Bitmap getRes(Context context, String name) {
 		ApplicationInfo appInfo = context.getApplicationInfo();
 		int resID = context.getResources().getIdentifier(name, "drawable", appInfo.packageName);
@@ -201,4 +202,15 @@ public class Utils {
 		SharedPreferences sp=context.getSharedPreferences("configs",Context. MODE_PRIVATE);
 		return sp.getString("head_other", "head_1");
 	}
+	public static void init(Context context) {
+		 scale = context.getResources().getDisplayMetrics().density;
+	}
+	 public static  int dip2px( float dpValue) {  
+         
+	        return (int) (dpValue * scale + 0.5f);  
+	    }
+	 public static int px2dip(float pxValue) {  
+	         
+	        return (int) (pxValue / scale + 0.5f);  
+	    } 
 }

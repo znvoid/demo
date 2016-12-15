@@ -17,24 +17,23 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
 public class TxtViewMenu extends PopupWindow {
-	private Context mContext;
 	private int mWindow_With;
 	private int mWindow_Heigh;
 
 	private TxtMenuClockListener mListener;
 
 	public TxtViewMenu(Context context) {
-		this.mContext = context;
-		inite();
+		 
+		init(context);
 	}
 
 	public void setOnTxtMenuClickListener(TxtMenuClockListener listener) {
 		mListener = listener;
 	}
 
-	@SuppressLint("NewApi")
-	private void inite() {
-		WindowManager m = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+	
+	private void init(Context context) {
+		WindowManager m = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		DisplayMetrics metrics = new DisplayMetrics();
 		m.getDefaultDisplay().getMetrics(metrics);
 
@@ -44,7 +43,7 @@ public class TxtViewMenu extends PopupWindow {
 		int rootwith = mWindow_With;
 		int rootheigh = mWindow_Heigh / 7;
 
-		LinearLayout layout = (LinearLayout) LinearLayout.inflate(mContext, R.layout.txtmenu_layout, null);
+		LinearLayout layout = (LinearLayout) LinearLayout.inflate(context, R.layout.txtmenu_layout, null);
 
 		this.setWidth(rootwith);
 		this.setHeight(rootheigh);

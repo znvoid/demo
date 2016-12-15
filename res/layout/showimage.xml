@@ -6,7 +6,7 @@
      android:background="#61605D">
     
     
-   <ImageView 
+   <com.znvoid.demo.view.MatrixImageView
         android:id="@+id/showimage_image" 
         android:layout_width="match_parent" 
         android:layout_height="match_parent" 

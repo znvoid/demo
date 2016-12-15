@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.znvoid.demo.BookpageActivity;
+import com.znvoid.demo.BookReadingActivity;
 import com.znvoid.demo.FileListActivity;
 import com.znvoid.demo.R;
 import com.znvoid.demo.adapt.BookDeskAdapt;
@@ -79,7 +79,9 @@ public class DeskFragment extends Fragment {
 					 * BookpageActivity.class); intent.putExtra("path",
 					 * bookImf.getPath()); startActivity(intent);
 					 */
-
+					Intent intent=new Intent(Context,BookReadingActivity.class);
+					intent.putExtra("path",bookImf.getPath()); 
+					startActivity(intent);
 				}
 
 			}

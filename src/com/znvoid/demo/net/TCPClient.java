@@ -144,9 +144,15 @@ public class TCPClient
 			msgQueue.clear();
 			msgQueue.add(new Contact("NULL", "NULL", "NULL", "NULL"));
 		}
+		
 		try {
-			socket.close();
-			out.close();
+			if (socket!=null) {
+				socket.close();
+			}
+			if (out!=null) {
+				out.close();
+			}
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

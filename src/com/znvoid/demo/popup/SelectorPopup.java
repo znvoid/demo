@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.znvoid.demo.R;
 import com.znvoid.demo.adapt.MyAdapt;
 import com.znvoid.demo.adapt.SelectorPopupAdapt;
@@ -59,6 +60,9 @@ public class SelectorPopup extends PopupWindow implements  OnClickListener, Chec
 		setContentView(rootView);
 		setFocusable(true);
 		setBackgroundDrawable(new BitmapDrawable());
+		  
+		mGridView.setOnScrollListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));  
+
 	}
 
 	
@@ -98,7 +102,7 @@ public class SelectorPopup extends PopupWindow implements  OnClickListener, Chec
 	}
 	
 	private void savePaht(String path) {
-		System.out.println(path);
+		
 		if(selectList.contains(path)){
 			selectList.remove(path);
 			

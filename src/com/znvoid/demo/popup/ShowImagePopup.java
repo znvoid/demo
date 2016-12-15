@@ -1,8 +1,10 @@
 package com.znvoid.demo.popup;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.znvoid.demo.R;
+import com.znvoid.demo.view.MatrixImageView;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,9 +21,9 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 
 public class ShowImagePopup extends PopupWindow {
-	private ImageView imageView;
+	private MatrixImageView imageView;
 	private Activity context;
-	private ImageLoader imageLoader ;
+	private DisplayImageOptions options;
 	public ShowImagePopup(Activity context) {
 		super(context);
 		this.context = context;
@@ -35,7 +37,11 @@ public class ShowImagePopup extends PopupWindow {
 
 		init(rootView);
 
-		
+		options= new DisplayImageOptions.Builder()   
+	                .cacheInMemory(true)  
+	                .cacheOnDisk(true)  
+	                .bitmapConfig(Bitmap.Config.RGB_565)  
+	                .build();
 
 		
 	}
@@ -44,11 +50,9 @@ public class ShowImagePopup extends PopupWindow {
 
 		ImageLoaderConfiguration configuration = ImageLoaderConfiguration
 				.createDefault(context);
+
 		
-		imageLoader=ImageLoader.getInstance();
-				imageLoader.init(configuration);
-		
-		 imageView = (ImageView) rootView.findViewById(R.id.showimage_image);
+		 imageView = (MatrixImageView) rootView.findViewById(R.id.showimage_image);
 		
 		rootView.setOnClickListener(new OnClickListener() {
 
@@ -80,7 +84,7 @@ public class ShowImagePopup extends PopupWindow {
 		}
 		if (path!=null) {
 			
-			imageLoader.displayImage("file://"+path, imageView);
+			ImageLoader.getInstance().displayImage("file://"+path, imageView,options);
 			showAtLocation(context.getWindow().getDecorView(), Gravity.TOP, 0,0);
 		
 			

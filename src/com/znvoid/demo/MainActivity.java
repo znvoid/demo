@@ -1,5 +1,7 @@
 package com.znvoid.demo;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.znvoid.demo.adapt.Menulistviewadapt;
 import com.znvoid.demo.daim.Contact;
 import com.znvoid.demo.daim.MLvData;
@@ -144,7 +146,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 			editor.commit();
 
 		}
-
+		ImageLoaderConfiguration configuration = ImageLoaderConfiguration  
+                .createDefault(this);  
+        ImageLoader.getInstance().init(configuration);  
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 
 		setSupportActionBar(toolbar);

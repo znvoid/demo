@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class Ping {
 	private boolean isOver = false;
-	private int threadCount;
+	
 
 	public void pingAll(String hostAddress) {
 		// 首先得到本机的IP，得到网段
@@ -22,92 +22,43 @@ public class Ping {
 			// 遍歷所有局域网Ip
 			String iip = ss + i;
 			if (!hostAddress.equals(iip)) {
-				ping1(iip);
+				MyThreadPool.getInstance().submit(new ping(iip));
 			}
 		}
 
-		// 等着所有Ping结束
-		while (!isOver) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (threadCount == 0) {
-				isOver = true;
-
-			}
-		}
+		
 
 	}
 
-	public void ping1(String ip) {
-		// 最多30个线程
-		try {
-			while (threadCount > 255) {
-				Thread.sleep(2);
-			}
-			threadCount += 1;
-			runPingIPprocess(ip);
-		} catch (Exception e) {
-			Log.e("Light1", e.getLocalizedMessage());
-		}
-	}
 
-	public void runPingIPprocess(final String ipString) {
-		final Thread pingThread = new Thread() {
-			@Override
-			public void run() {
-				byte[] sendBuf = "HF-A11ASSISTHREAD".getBytes();
-				try {
-					// InetAddress.getByName(ipString).isReachable(500);
-					// URL url = new URL(ipString);
-					// HttpURLConnection conn = (HttpURLConnection)
-					// url.openConnection();
-					// conn.connect();
-					// sleep(5);
-					// //conn.disconnect();
-					// 发送
-					DatagramSocket sendSocket = new DatagramSocket();
-					InetAddress broadcastAddress = InetAddress.getByName(ipString);
-					DatagramPacket sendPacket = new DatagramPacket(sendBuf, sendBuf.length, broadcastAddress, 48899);
-					sendSocket.send(sendPacket);
-					sleep(200);
-					sendSocket.close();
-					// 接收
-					/*
-					 * byte[] receiveBuf = new byte[64]; DatagramPacket
-					 * receivePacket = new DatagramPacket(receiveBuf,
-					 * receiveBuf.length); sendSocket.receive(receivePacket); //
-					 * 获得Wifi模块回复的自身IP InetAddress address =
-					 * receivePacket.getAddress(); String data =
-					 * receivePacket.getData().toString();
-					 * System.out.println(address);
-					 */
 
-					threadCount--;
-				} catch (Exception e) {
-					threadCount--;
-					//Log.e("Light", e.getLocalizedMessage());
-				} finally {
+	
 
-				}
-			}
-		};
-		pingThread.start();
-	}
-
-	/** 創建發送的消息Message **/
-	public static Message createMessage(int what, Object object) {
-		Message message = new Message();
-		message.what = what;
-		message.obj = object;
-		return message;
-	}
 
 	public boolean isEnd() {
 		return !isOver;
+	}
+	class ping implements Runnable{
+		private final String ip;
+		public ping(String ip) {
+			this.ip=ip;
+		}
+		@Override
+		public void run() {
+			byte[] sendBuf = "HF-A11ASSISTHREAD".getBytes();
+			try {
+				DatagramSocket sendSocket = new DatagramSocket();
+				InetAddress broadcastAddress = InetAddress.getByName(ip);
+				DatagramPacket sendPacket = new DatagramPacket(sendBuf, sendBuf.length, broadcastAddress, 48899);
+				sendSocket.send(sendPacket);
+				sendSocket.close();
+				Log.e("TAG", ip);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 	}
 
 }
