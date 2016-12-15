@@ -44,12 +44,16 @@
 
         <TextView
             android:id="@+id/title_textview"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:layout_marginRight="60dp"
+            android:layout_toRightOf="@+id/textview_titlebar_backey"
             android:text="书籍。。。"
+            android:gravity="center"
             android:textColor="#ffffffff"
-            android:textSize="17sp" />
+            android:textSize="17sp"
+            />
     </RelativeLayout>
     
 

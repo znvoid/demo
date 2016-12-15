@@ -79,9 +79,14 @@ public class DeskFragment extends Fragment {
 					 * BookpageActivity.class); intent.putExtra("path",
 					 * bookImf.getPath()); startActivity(intent);
 					 */
-					Intent intent=new Intent(Context,BookReadingActivity.class);
-					intent.putExtra("path",bookImf.getPath()); 
-					startActivity(intent);
+					if (new File(bookImf.getPath()).exists()) {
+						Intent intent=new Intent(Context,BookReadingActivity.class);
+						intent.putExtra("path",bookImf.getPath()); 
+						startActivity(intent);
+					}else {
+						Toast.makeText(Context, "文件不存在了！！！", 0).show();
+					}
+					
 				}
 
 			}

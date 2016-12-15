@@ -9,8 +9,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import com.znvoid.demo.util.FileUtils;
 import com.znvoid.demo.util.Utils;
@@ -178,5 +181,10 @@ public class BookMangerImp implements BookManger {
 	public float getProgressPercent() {
 	
 		return getProgress()/(bookLen*1.0f);
+	}
+	
+	public void releaseSource() {
+		  
+		
 	}
 }
